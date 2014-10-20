@@ -52,10 +52,15 @@ public class PatternCallbackTextWatcher implements TextWatcher {
             int cursorPosition = editText.getSelectionStart();
             for (PatternCallback patternCallback : patternCallbacks) {
                 Matcher matcher = patternCallback.pattern.matcher(s);
+                int matches = 0;
                 while(matcher.find()){
-                    if (matcher.start()<=cursorPosition && matcher.end()>=cursorPosition)
+                    if (matcher.start()<=cursorPosition && matcher.end()>=cursorPosition) {
+                        matches++;
                         patternCallback.callback.onMatch(matcher.start(), matcher.end());
+                    }
                 }
+                if (matches==0)
+                    patternCallback.callback.noMatch();
             }
         }
     }
@@ -63,10 +68,12 @@ public class PatternCallbackTextWatcher implements TextWatcher {
     @Override public void afterTextChanged(Editable s) { }
 
     /**
-     * When the text at the cursor matches, <code>onMatch</code> is called
+     * When the text at the cursor matches, <code>onMatch</code> is called. If there are no matches
+     * then noMatch is called
      */
     public interface Callback {
         void onMatch(int matchStart, int matchEnd);
+        void noMatch();
     }
 
     /**

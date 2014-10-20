@@ -32,6 +32,11 @@ public class PatternCallbackTextWatcherActivity extends Activity {
                         " end="+matchEnd+
                         " string="+editText.getText().toString().substring(matchStart,matchEnd));
             }
+
+            @Override
+            public void noMatch() {
+                Log.i(TAG,"noMatch");
+            }
         };
 
         tw.addPatternCallback(new PatternCallbackTextWatcher.PatternCallback(
