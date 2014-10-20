@@ -1,11 +1,8 @@
 package flipagram.android.text.watcher.pattern;
 
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
+import android.util.Log;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -13,6 +10,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A {@link android.text.TextWatcher} that calls the matching
+ * {@link flipagram.android.text.watcher.pattern.PatternCallbackTextWatcher.Callback}
+ * when the text at the selectionStart of the {@link android.widget.EditText} matches one
+ * of the {@link flipagram.android.text.watcher.pattern.PatternCallbackTextWatcher.PatternCallback}s
+ */
 public class PatternCallbackTextWatcher implements TextWatcher {
 
     private final EditText editText;
@@ -20,10 +23,23 @@ public class PatternCallbackTextWatcher implements TextWatcher {
     private String prev = null;
     private List<PatternCallback> patternCallbacks = new ArrayList<PatternCallback>();
 
+    /**
+     * Create a new {@link flipagram.android.text.watcher.pattern.PatternCallbackTextWatcher} and
+     * associate it with the given {@link android.widget.EditText}. You must
+     * {@link android.widget.EditText#addTextChangedListener} the returned object to the
+     * {@link android.widget.EditText}.
+     * @param editText
+     */
     public PatternCallbackTextWatcher(EditText editText){
         this.editText = editText;
     }
 
+    /**
+     * Add the {@link flipagram.android.text.watcher.pattern.PatternCallbackTextWatcher} to the
+     * internal list.
+     * @param patternCallback
+     * @return this for chaining
+     */
     public PatternCallbackTextWatcher addPatternCallback(PatternCallback patternCallback){
         patternCallbacks.add(patternCallback);
         return this;
@@ -33,10 +49,12 @@ public class PatternCallbackTextWatcher implements TextWatcher {
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (prev==null || !prev.equals(s.toString()) ) {
             prev = s.toString();
+            int cursorPosition = editText.getSelectionStart();
             for (PatternCallback patternCallback : patternCallbacks) {
                 Matcher matcher = patternCallback.pattern.matcher(s);
                 while(matcher.find()){
-                    patternCallback.callback.onMatch(matcher.start(), matcher.end());
+                    if (matcher.start()<=cursorPosition && matcher.end()>=cursorPosition)
+                        patternCallback.callback.onMatch(matcher.start(), matcher.end());
                 }
             }
         }
@@ -45,28 +63,15 @@ public class PatternCallbackTextWatcher implements TextWatcher {
     @Override public void afterTextChanged(Editable s) { }
 
     /**
-     *
-     * @param s the input CharSequence
-     * @return a new CharSequence with spans set
+     * When the text at the cursor matches, <code>onMatch</code> is called
      */
-    private CharSequence applyCharacterStyles(CharSequence s){
-        Spannable spannable = new SpannableString(s);
-
-        // Remove old spans
-        Object[] spans = spannable.getSpans(0,spannable.length(), Object.class);
-        for (Object span : spans)
-            spannable.removeSpan(span);
-
-        // Create new spans to give CharacterStyles
-        return spannable;
-    }
-
     public interface Callback {
         void onMatch(int matchStart, int matchEnd);
     }
 
     /**
-     * The PatternCallback class associates a Pattern with a Callback
+     * Associate a {@link java.util.regex.Pattern} with a
+     * {@link flipagram.android.text.watcher.pattern.PatternCallbackTextWatcher.Callback}.
      */
     public static class PatternCallback {
         public Pattern pattern;

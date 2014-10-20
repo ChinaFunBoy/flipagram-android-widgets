@@ -13,6 +13,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A {@link android.text.TextWatcher} that styles any text within the attached
+ * {@link android.widget.EditText}. One or more
+ * {@link flipagram.android.text.watcher.pattern.PatternCharacterStyleTextWatcher.PatternCharacterStyle}s
+ * must be added to define the {@link java.util.regex.Pattern} within the text and the associated
+ * {@link android.text.style.CharacterStyle}. Because this {@link android.text.TextWatcher} modifies
+ * the text within the {@link android.widget.EditText}, it should be the last one in any chain.
+ */
 public class PatternCharacterStyleTextWatcher implements TextWatcher {
 
     private final EditText editText;
@@ -24,6 +32,12 @@ public class PatternCharacterStyleTextWatcher implements TextWatcher {
         this.editText = editText;
     }
 
+    /**
+     * Add the {@link flipagram.android.text.watcher.pattern.PatternCharacterStyleTextWatcher} to
+     * the internal list.
+     * @param patternCharacterStyle
+     * @return this for chaining
+     */
     public PatternCharacterStyleTextWatcher addPatternCharacterStyle(PatternCharacterStyle patternCharacterStyle){
         patternCharacterStyles.add(patternCharacterStyle);
         return this;
@@ -42,11 +56,6 @@ public class PatternCharacterStyleTextWatcher implements TextWatcher {
     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
     @Override public void afterTextChanged(Editable s) { }
 
-    /**
-     *
-     * @param s the input CharSequence
-     * @return a new CharSequence with spans set
-     */
     private CharSequence applyCharacterStyles(CharSequence s){
         Spannable spannable = new SpannableString(s);
 
@@ -70,7 +79,8 @@ public class PatternCharacterStyleTextWatcher implements TextWatcher {
     }
 
     /**
-     * The PatternCharacterStyle class associates a Pattern with a CharacterStyle
+     * Associate a {@link java.util.regex.Pattern} with a
+     * {@link android.text.style.CharacterStyle}.
      */
     public static class PatternCharacterStyle {
         public Pattern pattern;
