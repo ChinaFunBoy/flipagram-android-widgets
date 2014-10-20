@@ -23,14 +23,16 @@ git submodule add flipagram-android-widgets git@github.com:Cheers-Dev/flipagram-
 
 Add this module to your settings.gradle and build.gradle.
 
-``` settings.gradle (example)
+settings.gradle (example)
+```
 ...
 include ':widgets'
 
 project(':widgets').projectDir = new File(settingsDir, 'flipagram-android-widgets/widgets')
 ```
 
-``` build.gradle (example)
+build.gradle (example)
+```
 ...
    compile project(':widgets')
 ...
