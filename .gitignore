@@ -4,3 +4,9 @@ local.properties
 .DS_Store
 build/
 *.iml
+
+# ant build artifacts
+widgets/src/main/build.xml
+widgets/src/main/proguard-project.txt
+widgets/src/main/project.properties
+widgets/src/main/src
