@@ -10,3 +10,10 @@ widgets/src/main/build.xml
 widgets/src/main/proguard-project.txt
 widgets/src/main/project.properties
 widgets/src/main/src
+
+# eclipse build artifacts
+widgets/src/main/.classpath
+widgets/src/main/.project
+widgets/src/main/.settings/
+widgets/src/main/bin/
+widgets/src/main/gen/
