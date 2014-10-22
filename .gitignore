@@ -1,3 +1,6 @@
+.project
+gen
+bin
 .gradle
 local.properties
 .idea/
