@@ -1,14 +1,13 @@
 package flipagram.android.text.watcher.pattern;
 
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.widget.EditText;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 
 /**
  * A {@link android.text.TextWatcher} that calls the matching
