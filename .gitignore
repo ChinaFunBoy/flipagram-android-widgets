@@ -4,6 +4,7 @@ bin
 .gradle
 local.properties
 .idea/
+.classpath
 .DS_Store
 build/
 *.iml
