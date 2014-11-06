@@ -25,7 +25,6 @@ public class PatternCharacterStyleTextWatcher implements TextWatcher {
 
     private final EditText editText;
 
-    private String prev = null;
     private List<PatternCharacterStyle> patternCharacterStyles = new ArrayList<PatternCharacterStyle>();
 
     public PatternCharacterStyleTextWatcher(EditText editText){
@@ -43,39 +42,19 @@ public class PatternCharacterStyleTextWatcher implements TextWatcher {
         return this;
     }
 
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (prev==null || !prev.equals(s.toString()) ) {
-            prev = s.toString();
-            int ss = editText.getSelectionStart();
-            int se = editText.getSelectionEnd();
-            editText.setText(applyCharacterStyles(s));
-            editText.setSelection(ss,se);
-        }
-    }
+    @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-    @Override public void afterTextChanged(Editable s) { }
-
-    private CharSequence applyCharacterStyles(CharSequence s){
-        Spannable spannable = new SpannableString(s);
-
-        // Remove old spans
-        Object[] spans = spannable.getSpans(0,spannable.length(), Object.class);
-        for (Object span : spans)
-            spannable.removeSpan(span);
-
-        // Create new spans to give CharacterStyles
+    @Override public void afterTextChanged(Editable s) {
         for (PatternCharacterStyle patternCharacterStyle : patternCharacterStyles) {
             Matcher matcher = patternCharacterStyle.pattern.matcher(s);
             while(matcher.find()){
-                spannable.setSpan(
+                s.setSpan(
                     CharacterStyle.wrap(patternCharacterStyle.characterStyle),
                     matcher.start(),
                     matcher.end(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
-        return spannable;
     }
 
     /**

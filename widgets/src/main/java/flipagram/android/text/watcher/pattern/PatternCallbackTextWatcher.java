@@ -19,7 +19,6 @@ public class PatternCallbackTextWatcher implements TextWatcher {
 
     private final EditText editText;
 
-    private String prev = null;
     private List<PatternCallback> patternCallbacks = new ArrayList<PatternCallback>();
 
     /**
@@ -44,27 +43,23 @@ public class PatternCallbackTextWatcher implements TextWatcher {
         return this;
     }
 
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (prev==null || !prev.equals(s.toString()) ) {
-            prev = s.toString();
-            int cursorPosition = editText.getSelectionStart();
-            for (PatternCallback patternCallback : patternCallbacks) {
-                Matcher matcher = patternCallback.pattern.matcher(s);
-                int matches = 0;
-                while(matcher.find()){
-                    if (matcher.start()<=cursorPosition && matcher.end()>=cursorPosition) {
-                        matches++;
-                        patternCallback.callback.onMatch(matcher.start(), matcher.end());
-                    }
+    @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+    @Override public void afterTextChanged(Editable s) {
+        int cursorPosition = editText.getSelectionStart();
+        for (PatternCallback patternCallback : patternCallbacks) {
+            Matcher matcher = patternCallback.pattern.matcher(s);
+            int matches = 0;
+            while(matcher.find()){
+                if (matcher.start()<=cursorPosition && matcher.end()>=cursorPosition) {
+                    matches++;
+                    patternCallback.callback.onMatch(matcher.start(), matcher.end());
                 }
-                if (matches==0)
-                    patternCallback.callback.noMatch();
             }
+            if (matches==0)
+                patternCallback.callback.noMatch();
         }
     }
-    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-    @Override public void afterTextChanged(Editable s) { }
 
     /**
      * When the text at the cursor matches, <code>onMatch</code> is called. If there are no matches
