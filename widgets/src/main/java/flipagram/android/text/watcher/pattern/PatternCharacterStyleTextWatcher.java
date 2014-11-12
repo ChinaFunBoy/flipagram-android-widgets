@@ -1,17 +1,15 @@
 package flipagram.android.text.watcher.pattern;
 
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
-import android.widget.EditText;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.text.Editable;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.widget.EditText;
 
 /**
  * A {@link android.text.TextWatcher} that styles any text within the attached
