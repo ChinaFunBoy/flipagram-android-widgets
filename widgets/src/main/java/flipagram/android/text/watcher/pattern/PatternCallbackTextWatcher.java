@@ -18,6 +18,7 @@ import android.widget.EditText;
 public class PatternCallbackTextWatcher implements TextWatcher {
 
     private final EditText editText;
+    private int cursorPosition;
 
     private List<PatternCallback> patternCallbacks = new ArrayList<PatternCallback>();
 
@@ -44,9 +45,10 @@ public class PatternCallbackTextWatcher implements TextWatcher {
     }
 
     @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        cursorPosition = editText.getSelectionStart();
+    }
     @Override public void afterTextChanged(Editable s) {
-        int cursorPosition = editText.getSelectionStart();
         for (PatternCallback patternCallback : patternCallbacks) {
             Matcher matcher = patternCallback.pattern.matcher(s);
             int matches = 0;
