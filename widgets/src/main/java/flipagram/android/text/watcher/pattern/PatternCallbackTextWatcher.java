@@ -44,9 +44,11 @@ public class PatternCallbackTextWatcher implements TextWatcher {
         return this;
     }
 
-    @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
     @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         cursorPosition = editText.getSelectionStart();
+    }
+    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+        cursorPosition = Math.max(cursorPosition,editText.getSelectionStart());
     }
     @Override public void afterTextChanged(Editable s) {
         for (PatternCallback patternCallback : patternCallbacks) {
