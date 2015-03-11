@@ -1,0 +1,7 @@
+<resources>
+    <declare-styleable name="PadToSquareRelativeLayout">
+        <attr name="paddingColor" format="color"/>
+        <attr name="paddingFrameColor" format="color"/>
+        <attr name="paddingFrameWidth" format="dimension"/>
+    </declare-styleable>
+</resources>
