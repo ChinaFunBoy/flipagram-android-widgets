@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".KitchenSinkActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@android:drawable/btn_star_big_on"
+        android:scaleType="fitXY"
+        />
+
+    <flipagram.android.widget.PadToSquareRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="60dp"
+                    app:paddingColor="#8888"
+                    app:paddingFrameColor="#00f"
+                    app:paddingFrameWidth="2dp"
+                    >
+        <flipagram.android.widget.CheckerboardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:horizontalSquares="3"
+            app:verticalSquares="3"
+            app:lineColor="#00f"
+            app:lineWidth="2dp"
+            />
+
+        <TextView
+            android:text="@string/hello_world"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            />
+
+        <TextView
+            android:text="@string/hello_world"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            />
+
+    </flipagram.android.widget.PadToSquareRelativeLayout>
+</RelativeLayout>

@@ -1,0 +1,4 @@
+include ':app'
+include ':widgets'
+
+project(':widgets').projectDir = new File(settingsDir, '../widgets')
