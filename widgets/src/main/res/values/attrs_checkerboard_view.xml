@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="CheckerboardView">
+        <attr name="lineWidth" format="dimension"/>
+        <attr name="lineColor" format="color"/>
+        <attr name="horizontalSquares" format="integer"/>
+        <attr name="verticalSquares" format="integer"/>
+    </declare-styleable>
+</resources>
