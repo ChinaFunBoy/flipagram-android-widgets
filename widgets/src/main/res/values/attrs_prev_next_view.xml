@@ -1,0 +1,7 @@
+<resources>
+    <declare-styleable name="PrevNextView">
+        <attr name="nofmText" format="reference"/>
+        <attr name="prevDrawable" format="reference"/>
+        <attr name="nextDrawable" format="reference"/>
+    </declare-styleable>
+</resources>
