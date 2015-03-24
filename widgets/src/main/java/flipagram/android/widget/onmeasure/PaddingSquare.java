@@ -8,8 +8,8 @@ public class PaddingSquare {
             Math.min(view.getPaddingTop(),
                 Math.min(view.getPaddingRight(),view.getPaddingBottom())));
 
-        final float width = view.getWidth();
-        final float height = view.getHeight();
+        final float width = View.MeasureSpec.getSize(widthMeasureSpec);
+        final float height = View.MeasureSpec.getSize(heightMeasureSpec);
 
         if (width==height){
             view.setPadding(basePad,basePad,basePad,basePad);
