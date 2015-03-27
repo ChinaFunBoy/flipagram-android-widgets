@@ -12,7 +12,6 @@ build/
 # ant build artifacts
 widgets/src/main/build.xml
 widgets/src/main/proguard-project.txt
-widgets/src/main/project.properties
 widgets/src/main/src
 
 # eclipse build artifacts
