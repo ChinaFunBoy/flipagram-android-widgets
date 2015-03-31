@@ -3,20 +3,12 @@ package flipagram.android.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import flipagram.android.widgets.R;
 
 /**
