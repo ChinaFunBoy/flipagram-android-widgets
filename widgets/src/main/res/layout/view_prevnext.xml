@@ -6,8 +6,10 @@
     android:layout_height="wrap_content"
     >
     <ImageButton android:id="@+id/prevButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:scaleType="centerInside"
+        android:background="#0000"
         android:layout_alignParentLeft="true"
         />
     <TextView android:id="@+id/nOfM"
@@ -17,8 +19,10 @@
         tools:text="N of M"
         />
     <ImageButton android:id="@+id/nextButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:scaleType="centerInside"
+        android:background="#0000"
         android:layout_alignParentRight="true"
         />
 </RelativeLayout>
