@@ -2,9 +2,7 @@ package flipagram.android.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -40,44 +38,27 @@ public class PercentLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
-//        int count = getChildCount();
-//
-//        int maxHeight = 0;
-//        int maxWidth = 0;
-//
-//        // Find out how big everyone wants to be
-//        measureChildren(widthMeasureSpec, heightMeasureSpec);
-//
-//        // Find rightmost and bottom-most child
-//        for (int i = 0; i < count; i++) {
-//            View child = getChildAt(i);
-//            if (child.getVisibility() != GONE) {
-//                int childRight;
-//                int childBottom;
-//
-//                PercentLayout.LayoutParams lp
-//                    = (PercentLayout.LayoutParams) child.getLayoutParams();
-//
-//                childRight = (int)(lp.x *getMeasuredWidth())+ child.getMeasuredWidth();
-//                childBottom = (int)(lp.y*getMeasuredHeight()) + child.getMeasuredHeight();
-//
-//                maxWidth = Math.max(maxWidth, childRight);
-//                maxHeight = Math.max(maxHeight, childBottom);
-//            }
-//        }
-//
-//        // Account for padding too
-//        maxWidth += getPaddingLeft() + getPaddingRight();
-//        maxHeight += getPaddingTop() + getPaddingBottom();
-//
-//        // Check against minimum height and width
-//        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-//        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
-//
-//        setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
-//            resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() != GONE) {
+                PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
 
-        measureChildren(widthSpec, heightSpec);
+                final int childWidthMeasureSpec = getChildMeasureSpec(
+                    widthSpec,
+                    getPaddingLeft() + getPaddingRight(),
+                    lp.width,
+                    lp.wide);
+
+                final int childHeightMeasureSpec = getChildMeasureSpec(
+                    heightSpec,
+                    getPaddingTop() + getPaddingBottom(),
+                    lp.height,
+                    lp.high);
+
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+            }
+        }
         int lockedWidth=MeasureSpec.getSize(widthSpec);
         int lockedHeight=MeasureSpec.getSize(heightSpec);
 
@@ -87,27 +68,82 @@ public class PercentLayout extends ViewGroup {
 
     }
 
-    protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
-        final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            }
+    public static int getChildMeasureSpec(int spec, int padding, int childDimension, float pct) {
+        int specMode = MeasureSpec.getMode(spec);
+        int specSize = MeasureSpec.getSize(spec);
+
+        int size = Math.max(0, specSize - padding);
+
+        int resultSize = 0;
+        int resultMode = 0;
+
+        switch (specMode) {
+            // Parent has imposed an exact size on us
+            case MeasureSpec.EXACTLY:
+                if (childDimension == 0) {
+                    resultSize = (int)(size * pct);
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension > 0) {
+                    resultSize = childDimension;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
+                    // Child wants to be our size. So be it.
+                    resultSize = size;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    // Child wants to determine its own size. It can't be
+                    // bigger than us.
+                    resultSize = size;
+                    resultMode = MeasureSpec.AT_MOST;
+                }
+                break;
+
+            // Parent has imposed a maximum size on us
+            case MeasureSpec.AT_MOST:
+                if (childDimension == 0) {
+                    resultSize = (int)(size * pct);
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension > 0) {
+                    // Child wants a specific size... so be it
+                    resultSize = childDimension;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
+                    // Child wants to be our size, but our size is not fixed.
+                    // Constrain child to not be bigger than us.
+                    resultSize = size;
+                    resultMode = MeasureSpec.AT_MOST;
+                } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    // Child wants to determine its own size. It can't be
+                    // bigger than us.
+                    resultSize = size;
+                    resultMode = MeasureSpec.AT_MOST;
+                }
+                break;
+
+            // Parent asked to see how big we want to be
+            case MeasureSpec.UNSPECIFIED:
+                if (childDimension == 0) {
+                    resultSize = (int)(size * pct);
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension > 0) {
+                    // Child wants a specific size... let him have it
+                    resultSize = childDimension;
+                    resultMode = MeasureSpec.EXACTLY;
+                } else if (childDimension == LayoutParams.MATCH_PARENT) {
+                    // Child wants to be our size... find out how big it should
+                    // be
+                    resultSize = 0;
+                    resultMode = MeasureSpec.UNSPECIFIED;
+                } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    // Child wants to determine its own size.... find out how
+                    // big it should be
+                    resultSize = 0;
+                    resultMode = MeasureSpec.UNSPECIFIED;
+                }
+                break;
         }
+        return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
     }
-
-    protected void measureChild(View child, int parentWidthSpec, int parentHeightSpec) {
-        PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
-
-        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthSpec,
-            getPaddingLeft() + getPaddingRight(), lp.width);
-        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightSpec,
-            getPaddingTop() + getPaddingBottom(), lp.height);
-
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-    }
-
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -115,31 +151,29 @@ public class PercentLayout extends ViewGroup {
 
         int childLeft, childTop, childRight, childBottom;
 
-        int vpad = getPaddingTop() + getPaddingBottom();
-        int hpad = getPaddingLeft() + getPaddingRight();
+        int verticalPadding = getPaddingTop() + getPaddingBottom();
+        int horizontalPadding = getPaddingLeft() + getPaddingRight();
 
-        int vpix = getMeasuredHeight() - vpad;
-        int hpix = getMeasuredWidth() - hpad;
+        int verticalPixels = getMeasuredHeight() - verticalPadding;
+        int horizontalPixels = getMeasuredWidth() - horizontalPadding;
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
 
                 PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
-                childLeft = getPaddingLeft() + (int) (lp.x * hpix);
-                childTop = getPaddingTop() + (int) (lp.y * vpix);
+                childLeft = getPaddingLeft() + (int) (lp.x * horizontalPixels);
+                childTop = getPaddingTop() + (int) (lp.y * verticalPixels);
                 if (child.getMeasuredWidth()!=0){
                     childRight = childLeft + child.getMeasuredWidth();
                 } else {
-                    childRight = childLeft + (int)(hpix * lp.wide);
+                    childRight = childLeft + (int)(horizontalPixels * lp.wide);
                 }
                 if (child.getMeasuredWidth()!=0){
                     childBottom = childTop + child.getMeasuredHeight();
                 } else {
-                    childBottom = childTop + (int)(vpix * lp.high);
+                    childBottom = childTop + (int)(verticalPixels * lp.high);
                 }
-                Rect rect = new Rect(childLeft,childTop,childRight,childBottom);
-                Log.i("jl", "PercentLayout.onLayout: "+rect.flattenToString());
 
                 child.layout(childLeft, childTop, childRight, childBottom);
             }

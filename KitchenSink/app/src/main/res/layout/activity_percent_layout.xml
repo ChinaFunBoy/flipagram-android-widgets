@@ -29,4 +29,25 @@
         app:wide="0.5"
         app:high="0.5"
         android:background="#ff0"/>
+
+    <Button
+        android:text="@string/hello_world"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:x="0.125"
+        app:y="0.125"
+        app:wide="0.25"
+        app:high="0.25"
+        android:background="#ff0"/>
+
+    <Button
+        android:text="@string/hello_world"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:x="0.625"
+        app:y="0.625"
+        app:wide="0.25"
+        app:high="0.25"
+        android:background="#ff0"/>
+
 </flipagram.android.widget.PercentLayout>
