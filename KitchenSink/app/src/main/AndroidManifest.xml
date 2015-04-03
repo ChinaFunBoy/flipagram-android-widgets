@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PercentLayoutActivity"
+            android:label="@string/title_activity_percent_layout"
+            android:parentActivityName=".KitchenSinkActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="flipagram.android.app.kitchensink.KitchenSinkActivity" />
+        </activity>
     </application>
 
 </manifest>

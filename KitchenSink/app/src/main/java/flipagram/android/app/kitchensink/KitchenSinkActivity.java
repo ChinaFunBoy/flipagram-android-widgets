@@ -1,10 +1,12 @@
 package flipagram.android.app.kitchensink;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import flipagram.android.widget.PrevNextView;
 
@@ -29,6 +31,13 @@ public class KitchenSinkActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 pn.setN(pn.getN()+1);
+            }
+        });
+
+        Button.class.cast(findViewById(R.id.percentLayoutButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(KitchenSinkActivity.this,PercentLayoutActivity.class));
             }
         });
     }

@@ -1,0 +1,32 @@
+<flipagram.android.widget.PercentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:background="#0f0"
+                tools:context="flipagram.android.app.kitchensink.PercentLayoutActivity">
+
+    <TextView
+        android:text="@string/hello_world"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:x="0.5"
+        app:y="0.0"
+        app:wide="0.5"
+        app:high="0.5"
+        android:background="#ff0"/>
+
+    <Button
+        android:text="@string/hello_world"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:x="0.0"
+        app:y="0.5"
+        app:wide="0.5"
+        app:high="0.5"
+        android:background="#ff0"/>
+</flipagram.android.widget.PercentLayout>
