@@ -18,6 +18,7 @@ package flipagram.android.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -164,7 +165,10 @@ public class PercentLayout extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int count = getChildCount();
 
-        int childLeft, childTop, childRight, childBottom;
+        int childLeft=0;
+        int childTop=0;
+        int childRight=0;
+        int childBottom=0;
 
         int verticalPadding = getPaddingTop() + getPaddingBottom();
         int horizontalPadding = getPaddingLeft() + getPaddingRight();
@@ -177,18 +181,53 @@ public class PercentLayout extends ViewGroup {
             if (child.getVisibility() != GONE) {
 
                 PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
-                childLeft = getPaddingLeft() + (int) (lp.x * horizontalPixels);
-                childTop = getPaddingTop() + (int) (lp.y * verticalPixels);
-                if (child.getMeasuredWidth()!=0){
-                    childRight = childLeft + child.getMeasuredWidth();
-                } else {
-                    childRight = childLeft + (int)(horizontalPixels * lp.wide);
+                if (lp.gravity==-1 || (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.TOP)) {
+                    childTop = getPaddingTop() + (int) (lp.y * verticalPixels);
+                    if (child.getMeasuredHeight()!=0){
+                        childBottom = childTop + child.getMeasuredHeight();
+                    } else {
+                        childBottom = childTop + (int)(verticalPixels * lp.high);
+                    }
+                } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM) {
+                    childBottom = getPaddingTop() + (int) ((1.0-lp.y) * verticalPixels);
+                    if (child.getMeasuredHeight()!=0){
+                        childTop = childBottom - child.getMeasuredHeight();
+                    } else {
+                        childTop = childBottom - (int)(verticalPixels * lp.high);
+                    }
+                } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
+                    int y = (int) (lp.y * verticalPixels);
+                    int size = child.getMeasuredHeight()!=0?
+                        child.getMeasuredHeight():
+                        (int)(verticalPixels * lp.high);
+                    childTop = getPaddingTop() + y - size/2;
+                    childBottom = childTop + size;
                 }
-                if (child.getMeasuredWidth()!=0){
-                    childBottom = childTop + child.getMeasuredHeight();
-                } else {
-                    childBottom = childTop + (int)(verticalPixels * lp.high);
+
+                if (lp.gravity==-1 || (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.LEFT)) {
+                    childLeft = getPaddingLeft() + (int) (lp.x * horizontalPixels);
+                    if (child.getMeasuredWidth()!=0){
+                        childRight = childLeft + child.getMeasuredWidth();
+                    } else {
+                        childRight = childLeft + (int)(horizontalPixels * lp.wide);
+                    }
+                } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
+                    childRight = getPaddingLeft() + (int) ((1.0-lp.x) * horizontalPixels);
+                    if (child.getMeasuredWidth()!=0){
+                        childLeft = childRight - child.getMeasuredWidth();
+                    } else {
+                        childLeft = childRight - (int)(horizontalPixels * lp.wide);
+                    }
+                } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
+                    int x = (int) (lp.x * horizontalPixels);
+                    int size = child.getMeasuredWidth()!=0?
+                        child.getMeasuredWidth():
+                        (int)(horizontalPixels * lp.wide);
+                    childLeft = getPaddingLeft() + x - size/2;
+                    childRight = childLeft + size;
                 }
+
+
 
                 child.layout(childLeft, childTop, childRight, childBottom);
             }
@@ -236,6 +275,7 @@ public class PercentLayout extends ViewGroup {
          * The vertical height percentage
          */
         public float high;
+        public int gravity;
         /**
          * Creates a new set of layout parameters with the specified width,
          * height and location.
@@ -276,6 +316,7 @@ public class PercentLayout extends ViewGroup {
             y = a.getFloat(R.styleable.PercentLayout_y, 0);
             wide = a.getFloat(R.styleable.PercentLayout_wide, 0);
             high = a.getFloat(R.styleable.PercentLayout_high, 0);
+            gravity = a.getInt(R.styleable.PercentLayout_android_layout_gravity, -1);
             a.recycle();
         }
 

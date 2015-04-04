@@ -4,5 +4,6 @@
         <attr name="y" format="float"/>
         <attr name="wide" format="float"/>
         <attr name="high" format="float"/>
+        <attr name="android:layout_gravity"/>
     </declare-styleable>
 </resources>
