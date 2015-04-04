@@ -181,27 +181,24 @@ public class PercentLayout extends ViewGroup {
             if (child.getVisibility() != GONE) {
 
                 PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
+                final int y = (int) (lp.y * verticalPixels);
+                final int vpad = getPaddingTop();
+                final int vsize = child.getMeasuredHeight()!=0?
+                    child.getMeasuredHeight():
+                    (int)(verticalPixels * lp.high);
                 if (lp.gravity==-1 || (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.TOP)) {
-                    childTop = getPaddingTop() + (int) (lp.y * verticalPixels);
+                    childTop = vpad + (int) (lp.y * verticalPixels);
                     if (child.getMeasuredHeight()!=0){
                         childBottom = childTop + child.getMeasuredHeight();
                     } else {
                         childBottom = childTop + (int)(verticalPixels * lp.high);
                     }
                 } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM) {
-                    childBottom = getPaddingTop() + (int) ((1.0-lp.y) * verticalPixels);
-                    if (child.getMeasuredHeight()!=0){
-                        childTop = childBottom - child.getMeasuredHeight();
-                    } else {
-                        childTop = childBottom - (int)(verticalPixels * lp.high);
-                    }
+                    childTop = vpad + y - vsize;
+                    childBottom = vpad + y;
                 } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
-                    int y = (int) (lp.y * verticalPixels);
-                    int size = child.getMeasuredHeight()!=0?
-                        child.getMeasuredHeight():
-                        (int)(verticalPixels * lp.high);
-                    childTop = getPaddingTop() + y - size/2;
-                    childBottom = childTop + size;
+                    childTop = vpad + y - vsize/2;
+                    childBottom = childTop + vsize;
                 }
 
                 if (lp.gravity==-1 || (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.LEFT)) {
@@ -212,12 +209,12 @@ public class PercentLayout extends ViewGroup {
                         childRight = childLeft + (int)(horizontalPixels * lp.wide);
                     }
                 } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    childRight = getPaddingLeft() + (int) ((1.0-lp.x) * horizontalPixels);
-                    if (child.getMeasuredWidth()!=0){
-                        childLeft = childRight - child.getMeasuredWidth();
-                    } else {
-                        childLeft = childRight - (int)(horizontalPixels * lp.wide);
-                    }
+                    int x = (int) (lp.x * horizontalPixels);
+                    int size = child.getMeasuredWidth()!=0?
+                        child.getMeasuredWidth():
+                        (int)(horizontalPixels * lp.wide);
+                    childLeft = getPaddingLeft() + x - size;
+                    childRight = getPaddingLeft() + x;
                 } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
                     int x = (int) (lp.x * horizontalPixels);
                     int size = child.getMeasuredWidth()!=0?
