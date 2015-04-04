@@ -179,27 +179,21 @@ public class PercentLayout extends ViewGroup {
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
-
                 PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
+
                 final int y = (int) (lp.y * verticalPixels);
                 final int vpad = getPaddingTop();
                 final int vsize = child.getMeasuredHeight()!=0?
                     child.getMeasuredHeight():
                     (int)(verticalPixels * lp.high);
                 if (lp.gravity==-1 || (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.TOP)) {
-                    childTop = vpad + (int) (lp.y * verticalPixels);
-                    if (child.getMeasuredHeight()!=0){
-                        childBottom = childTop + child.getMeasuredHeight();
-                    } else {
-                        childBottom = childTop + (int)(verticalPixels * lp.high);
-                    }
+                    childTop = vpad + y;
                 } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM) {
                     childTop = vpad + y - vsize;
-                    childBottom = vpad + y;
                 } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
                     childTop = vpad + y - vsize/2;
-                    childBottom = childTop + vsize;
                 }
+                childBottom = childTop + vsize;
 
                 if (lp.gravity==-1 || (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.LEFT)) {
                     childLeft = getPaddingLeft() + (int) (lp.x * horizontalPixels);
