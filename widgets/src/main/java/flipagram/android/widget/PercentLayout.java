@@ -170,50 +170,55 @@ public class PercentLayout extends ViewGroup {
         int childRight=0;
         int childBottom=0;
 
-        int verticalPadding = getPaddingTop() + getPaddingBottom();
+        final int paddingTop = getPaddingTop();
+        final int paddingLeft = getPaddingLeft();
+        int verticalPadding = paddingTop + getPaddingBottom();
         int horizontalPadding = getPaddingLeft() + getPaddingRight();
 
-        int verticalPixels = getMeasuredHeight() - verticalPadding;
-        int horizontalPixels = getMeasuredWidth() - horizontalPadding;
+        int containerVerticalPixels = getMeasuredHeight() - verticalPadding;
+        int containerHorizontalPixels = getMeasuredWidth() - horizontalPadding;
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
                 PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
 
-                final int y = (int) (lp.y * verticalPixels);
-                final int vpad = getPaddingTop();
-                final int vsize = child.getMeasuredHeight()!=0?
+                final int y = (int) (lp.y * containerVerticalPixels);
+                final int childVerticalPixels = child.getMeasuredHeight()!=0?
                     child.getMeasuredHeight():
-                    (int)(verticalPixels * lp.high);
-                if (lp.gravity==-1 || (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.TOP)) {
-                    childTop = vpad + y;
-                } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.BOTTOM) {
-                    childTop = vpad + y - vsize;
-                } else if (Gravity.isVertical(lp.gravity) && (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
-                    childTop = vpad + y - vsize/2;
+                    (int)(containerVerticalPixels * lp.high);
+                switch(lp.gravity & Gravity.VERTICAL_GRAVITY_MASK){
+                    case Gravity.BOTTOM:
+                        childTop = paddingTop + y - childVerticalPixels;
+                        break;
+                    case Gravity.CENTER_VERTICAL:
+                        childTop = paddingTop + y - childVerticalPixels/2;
+                        break;
+                    case Gravity.TOP:
+                    default:
+                        childTop = paddingTop + y;
                 }
-                childBottom = childTop + vsize;
+                childBottom = childTop + childVerticalPixels;
 
                 if (lp.gravity==-1 || (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.LEFT)) {
-                    childLeft = getPaddingLeft() + (int) (lp.x * horizontalPixels);
+                    childLeft = getPaddingLeft() + (int) (lp.x * containerHorizontalPixels);
                     if (child.getMeasuredWidth()!=0){
                         childRight = childLeft + child.getMeasuredWidth();
                     } else {
-                        childRight = childLeft + (int)(horizontalPixels * lp.wide);
+                        childRight = childLeft + (int)(containerHorizontalPixels * lp.wide);
                     }
                 } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
-                    int x = (int) (lp.x * horizontalPixels);
+                    int x = (int) (lp.x * containerHorizontalPixels);
                     int size = child.getMeasuredWidth()!=0?
                         child.getMeasuredWidth():
-                        (int)(horizontalPixels * lp.wide);
+                        (int)(containerHorizontalPixels * lp.wide);
                     childLeft = getPaddingLeft() + x - size;
                     childRight = getPaddingLeft() + x;
                 } else if (Gravity.isHorizontal(lp.gravity) && (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
-                    int x = (int) (lp.x * horizontalPixels);
+                    int x = (int) (lp.x * containerHorizontalPixels);
                     int size = child.getMeasuredWidth()!=0?
                         child.getMeasuredWidth():
-                        (int)(horizontalPixels * lp.wide);
+                        (int)(containerHorizontalPixels * lp.wide);
                     childLeft = getPaddingLeft() + x - size/2;
                     childRight = childLeft + size;
                 }
