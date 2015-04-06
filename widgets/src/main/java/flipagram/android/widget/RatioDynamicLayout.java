@@ -309,8 +309,11 @@ public class RatioDynamicLayout extends ViewGroup {
          * @param x the X location of the child
          * @param y the Y location of the child
          */
-        public LayoutParams(int width, int height, float x, float y) {
+        public LayoutParams(int width, int height) {
             super(width, height);
+        }
+        public LayoutParams(int width, int height, float x, float y) {
+            this(width, height);
             this.x = x;
             this.y = y;
         }
