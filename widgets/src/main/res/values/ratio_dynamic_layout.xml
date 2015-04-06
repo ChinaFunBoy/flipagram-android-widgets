@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="RatioDynamicLayout">
+        <attr name="x" format="float"/>
+        <attr name="y" format="float"/>
+        <attr name="ratio" format="float"/>
+        <attr name="android:layout_gravity"/>
+    </declare-styleable>
+</resources>

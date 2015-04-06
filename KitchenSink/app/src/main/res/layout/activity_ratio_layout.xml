@@ -1,6 +1,7 @@
-<flipagram.android.widget.PercentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<flipagram.android.widget.RatioDynamicLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/root"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -14,30 +15,27 @@
         android:text="@string/hello_world"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:percent_x="0.5"
-        app:percent_y="0.0"
-        app:wide="0.5"
-        app:high="0.5"
+        app:x="0.5"
+        app:y="0.0"
+        app:ratio="0.5"
         android:background="#ff0"/>
 
     <Button
         android:text="@string/hello_world"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:percent_x="0.0"
-        app:percent_y="0.5"
-        app:wide="0.5"
-        app:high="0.5"
+        app:x="0.0"
+        app:y="0.5"
+        app:ratio="0.5"
         android:background="#ff0"/>
 
     <Button
         android:text="@string/hello_world"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:percent_x="0.125"
-        app:percent_y="0.125"
-        app:wide="0.25"
-        app:high="0.25"
+        app:x="0.125"
+        app:y="0.125"
+        app:ratio="0.25"
         android:background="#ff0"
         />
 
@@ -45,10 +43,9 @@
         android:text="@string/hello_world"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:percent_x="0.875"
-        app:percent_y="0.875"
-        app:wide="0.25"
-        app:high="0.25"
+        app:x="0.875"
+        app:y="0.875"
+        app:ratio="0.25"
         android:layout_gravity="bottom|right"
         android:background="#ff0"/>
 
@@ -56,11 +53,10 @@
         android:text="@string/hello_world"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:percent_x="0.5"
-        app:percent_y="0.5"
-        app:wide="0.25"
-        app:high="0.25"
+        app:x="0.5"
+        app:y="0.5"
+        app:ratio="0.25"
         android:layout_gravity="center"
         android:background="#ff0"/>
 
-</flipagram.android.widget.PercentLayout>
+</flipagram.android.widget.RatioDynamicLayout>

@@ -1,7 +1,7 @@
 <resources>
     <declare-styleable name="PercentLayout">
-        <attr name="x" format="float"/>
-        <attr name="y" format="float"/>
+        <attr name="percent_x" format="float"/>
+        <attr name="percent_y" format="float"/>
         <attr name="wide" format="float"/>
         <attr name="high" format="float"/>
         <attr name="android:layout_gravity"/>

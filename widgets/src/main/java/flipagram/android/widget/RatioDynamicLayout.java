@@ -17,6 +17,7 @@ package flipagram.android.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -25,19 +26,23 @@ import android.view.ViewGroup;
 import flipagram.android.widgets.R;
 
 /**
- * A layout that lets you specify locations (x/y coordinates) of its
- * children as a float that ranges between 0 and 1 where 0 is the top/left and 1 is bottom/right.
+ * A layout that lets you specify <ul>
+ * <li>The location (x/y coordinates) of its children as a float that ranges between 0 and 1
+ * where 0 is the top/left and 1 is bottom/right.</li>
+ * <li>A ratio that relates the size of each child to it's parent's size</li>
+ * <li>A dynamic function that allows the child the freedom to specify exactly how the ratio
+ * relates to the parent.</li>
  */
-public class PercentLayout extends ViewGroup {
-    public PercentLayout(Context context) {
+public class RatioDynamicLayout extends ViewGroup {
+    public RatioDynamicLayout(Context context) {
         this(context, null);
     }
 
-    public PercentLayout(Context context, AttributeSet attrs) {
+    public RatioDynamicLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public PercentLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RatioDynamicLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -58,20 +63,39 @@ public class PercentLayout extends ViewGroup {
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
-                PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
+                RatioDynamicLayout.LayoutParams lp = (RatioDynamicLayout.LayoutParams) child.getLayoutParams();
 
-                final int childWidthMeasureSpec = getChildMeasureSpec(
-                    widthSpec,
-                    getPaddingLeft() + getPaddingRight(),
-                    lp.width,
-                    lp.wide);
+                int childWidthMeasureSpec;
+                int childHeightMeasureSpec;
+                if (lp.listener!=null){
+                    Point pixels = lp.listener.measureForContainer(
+                        lp,
+                        MeasureSpec.getSize(widthSpec),
+                        MeasureSpec.getSize(heightSpec));
+                    childWidthMeasureSpec = getChildMeasureSpec(
+                        widthSpec,
+                        getPaddingLeft() + getPaddingRight(),
+                        pixels.x,
+                        lp.ratio);
 
-                final int childHeightMeasureSpec = getChildMeasureSpec(
-                    heightSpec,
-                    getPaddingTop() + getPaddingBottom(),
-                    lp.height,
-                    lp.high);
+                    childHeightMeasureSpec = getChildMeasureSpec(
+                        heightSpec,
+                        getPaddingTop() + getPaddingBottom(),
+                        pixels.y,
+                        lp.ratio);
+                } else {
+                    childWidthMeasureSpec = getChildMeasureSpec(
+                        widthSpec,
+                        getPaddingLeft() + getPaddingRight(),
+                        lp.width,
+                        lp.ratio);
 
+                    childHeightMeasureSpec = getChildMeasureSpec(
+                        heightSpec,
+                        getPaddingTop() + getPaddingBottom(),
+                        lp.height,
+                        lp.ratio);
+                }
                 child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
             }
         }
@@ -181,44 +205,51 @@ public class PercentLayout extends ViewGroup {
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
-                PercentLayout.LayoutParams lp = (PercentLayout.LayoutParams) child.getLayoutParams();
+                RatioDynamicLayout.LayoutParams lp = (RatioDynamicLayout.LayoutParams) child.getLayoutParams();
 
                 final int x = (int) (lp.x * containerHorizontalPixels);
                 final int y = (int) (lp.y * containerVerticalPixels);
 
-                final int childVerticalPixels = child.getMeasuredHeight()!=0?
-                    child.getMeasuredHeight():
-                    (int)(containerVerticalPixels * lp.high);
+                Point childPixels;
+                if (lp.listener!=null){
+                    childPixels = lp.listener.measureForContainer(lp, containerHorizontalPixels, containerVerticalPixels);
+                } else {
+                    childPixels = new Point();
+                    childPixels.y = child.getMeasuredHeight() != 0 ?
+                        child.getMeasuredHeight() :
+                        (int) (containerVerticalPixels * lp.ratio);
 
-                final int childHorizontalPixels = child.getMeasuredWidth()!=0?
-                    child.getMeasuredWidth():
-                    (int)(containerHorizontalPixels * lp.wide);
+                    childPixels.x = child.getMeasuredWidth() != 0 ?
+                        child.getMeasuredWidth() :
+                        (int) (containerHorizontalPixels * lp.ratio);
+                }
+
 
                 switch(lp.gravity & Gravity.VERTICAL_GRAVITY_MASK){
                     case Gravity.BOTTOM:
-                        childTop = paddingTop + y - childVerticalPixels;
+                        childTop = paddingTop + y - childPixels.y;
                         break;
                     case Gravity.CENTER_VERTICAL:
-                        childTop = paddingTop + y - childVerticalPixels/2;
+                        childTop = paddingTop + y - childPixels.y/2;
                         break;
                     case Gravity.TOP:
                     default:
                         childTop = paddingTop + y;
                 }
-                childBottom = childTop + childVerticalPixels;
+                childBottom = childTop + childPixels.y;
 
                 switch(lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK){
                     case Gravity.RIGHT:
-                        childLeft = paddingLeft + x - childHorizontalPixels;
+                        childLeft = paddingLeft + x - childPixels.x;
                         break;
                     case Gravity.CENTER_HORIZONTAL:
-                        childLeft = paddingLeft + x - childHorizontalPixels/2;
+                        childLeft = paddingLeft + x - childPixels.x/2;
                         break;
                     case Gravity.LEFT:
                     default:
                         childLeft = paddingLeft + x;
                 }
-                childRight = childLeft + childHorizontalPixels;
+                childRight = childLeft + childPixels.x;
 
                 child.layout(childLeft, childTop, childRight, childBottom);
             }
@@ -227,13 +258,13 @@ public class PercentLayout extends ViewGroup {
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new PercentLayout.LayoutParams(getContext(), attrs);
+        return new RatioDynamicLayout.LayoutParams(getContext(), attrs);
     }
 
     // Override to allow type-checking of LayoutParams.
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof PercentLayout.LayoutParams;
+        return p instanceof RatioDynamicLayout.LayoutParams;
     }
 
     @Override
@@ -259,14 +290,14 @@ public class PercentLayout extends ViewGroup {
          */
         public float y;
         /**
-         * The horizontal width percentage
+         * The ratio of container percentage
          */
-        public float wide;
-        /**
-         * The vertical height percentage
-         */
-        public float high;
+        public float ratio;
         public int gravity;
+        public Listener listener = null;
+        public interface Listener {
+            public Point measureForContainer(LayoutParams lp, int containerWidth, int containerHeight);
+        }
         /**
          * Creates a new set of layout parameters with the specified width,
          * height and location.
@@ -302,11 +333,10 @@ public class PercentLayout extends ViewGroup {
          */
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
-            final TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.PercentLayout);
-            x = a.getFloat(R.styleable.PercentLayout_percent_x, 0);
-            y = a.getFloat(R.styleable.PercentLayout_percent_y, 0);
-            wide = a.getFloat(R.styleable.PercentLayout_wide, 0);
-            high = a.getFloat(R.styleable.PercentLayout_high, 0);
+            final TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.RatioDynamicLayout);
+            x = a.getFloat(R.styleable.RatioDynamicLayout_x, 0);
+            y = a.getFloat(R.styleable.RatioDynamicLayout_y, 0);
+            ratio = a.getFloat(R.styleable.RatioDynamicLayout_ratio, 0);
             gravity = a.getInt(R.styleable.PercentLayout_android_layout_gravity, -1);
             a.recycle();
         }
@@ -316,6 +346,24 @@ public class PercentLayout extends ViewGroup {
          */
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+
+        /**
+         * Add the listener to the View and its children
+         * @param view
+         * @param listener
+         */
+        public static void addDynamicLayout(View view, RatioDynamicLayout.LayoutParams.Listener listener){
+            final ViewGroup.LayoutParams lp = view.getLayoutParams();
+            if (lp instanceof RatioDynamicLayout.LayoutParams){
+                ((RatioDynamicLayout.LayoutParams) lp).listener = listener;
+            }
+            if (view instanceof ViewGroup){
+                int count = ((ViewGroup) view).getChildCount();
+                for(int i=0; i<count; i++){
+                    addDynamicLayout(((ViewGroup) view).getChildAt(i), listener);
+                }
+            }
         }
     }
 }

@@ -55,6 +55,12 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 startActivity(new Intent(KitchenSinkActivity.this,PercentLayoutActivity.class));
             }
         });
+        Button.class.cast(findViewById(R.id.ratioLayoutButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(KitchenSinkActivity.this,RatioLayoutActivity.class));
+            }
+        });
     }
 
 }
