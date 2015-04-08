@@ -289,6 +289,9 @@ public class RatioDynamicLayout extends ViewGroup {
         public interface Listener {
             public Point measureForContainer(LayoutParams lp, int containerWidth, int containerHeight);
         }
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
         /**
          * Creates a new set of layout parameters with the specified width,
          * height and location.
@@ -300,9 +303,6 @@ public class RatioDynamicLayout extends ViewGroup {
          * @param x the X location of the child
          * @param y the Y location of the child
          */
-        public LayoutParams(int width, int height) {
-            super(width, height);
-        }
         public LayoutParams(int width, int height, float x, float y) {
             this(width, height);
             this.x = x;
