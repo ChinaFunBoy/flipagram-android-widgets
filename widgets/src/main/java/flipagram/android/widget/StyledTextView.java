@@ -168,10 +168,7 @@ public class StyledTextView extends View {
     public void setTypeface(Typeface typeface) { paint.setTypeface(typeface); }
 
     public float getTextSize() { return paint.getTextSize(); }
-    public void setTextSize(float size) {
-        paint.setTextSize(size);
-        invalidate();
-    }
+    public void setTextSize(float size) { paint.setTextSize(size); }
 
     public boolean getHasTickMark() { return hasTickMark; }
     public void setHasTickMark(boolean hasTickMark) { this.hasTickMark = hasTickMark; }
