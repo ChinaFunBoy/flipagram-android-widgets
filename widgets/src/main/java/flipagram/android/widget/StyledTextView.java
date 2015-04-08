@@ -82,6 +82,47 @@ public class StyledTextView extends View {
         }
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        int setWidth;
+        int setHeight;
+
+        Point size = null;
+
+        if (widthMode == MeasureSpec.EXACTLY) {
+            // Parent has told us how big to be. So be it.
+            setWidth = widthSize;
+        } else {
+            size = calculateSize();
+            if (widthMeasureSpec == MeasureSpec.AT_MOST) {
+                setWidth = Math.min(widthSize, size.x);
+            } else {
+                setWidth = size.x;
+            }
+        }
+
+        if (heightMode == MeasureSpec.EXACTLY) {
+            // Parent has told us how big to be. So be it.
+            setHeight = heightSize;
+        } else {
+            if (size==null){
+                size = calculateSize();
+            }
+            if (heightMeasureSpec == MeasureSpec.AT_MOST) {
+                setHeight = Math.min(heightSize, size.y);
+            } else {
+                setHeight = size.y;
+            }
+        }
+
+        setMeasuredDimension(setWidth, setHeight);
+    }
+
     /**
      * Calculate the width/depth of the View in pixels
      * @return a Point that has the width/depth of the View in pixels
@@ -127,7 +168,10 @@ public class StyledTextView extends View {
     public void setTypeface(Typeface typeface) { paint.setTypeface(typeface); }
 
     public float getTextSize() { return paint.getTextSize(); }
-    public void setTextSize(float size) { paint.setTextSize(size); }
+    public void setTextSize(float size) {
+        paint.setTextSize(size);
+        invalidate();
+    }
 
     public boolean getHasTickMark() { return hasTickMark; }
     public void setHasTickMark(boolean hasTickMark) { this.hasTickMark = hasTickMark; }

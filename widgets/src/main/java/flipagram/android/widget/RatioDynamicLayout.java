@@ -72,17 +72,8 @@ public class RatioDynamicLayout extends ViewGroup {
                         lp,
                         MeasureSpec.getSize(widthSpec),
                         MeasureSpec.getSize(heightSpec));
-                    childWidthMeasureSpec = getChildMeasureSpec(
-                        widthSpec,
-                        getPaddingLeft() + getPaddingRight(),
-                        pixels.x,
-                        lp.ratio);
-
-                    childHeightMeasureSpec = getChildMeasureSpec(
-                        heightSpec,
-                        getPaddingTop() + getPaddingBottom(),
-                        pixels.y,
-                        lp.ratio);
+                    childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(pixels.x,MeasureSpec.EXACTLY);
+                    childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(pixels.y,MeasureSpec.EXACTLY);
                 } else {
                     childWidthMeasureSpec = getChildMeasureSpec(
                         widthSpec,
