@@ -198,8 +198,6 @@ public class RatioDynamicLayout extends ViewGroup {
             if (child.getVisibility() != GONE) {
                 RatioDynamicLayout.LayoutParams lp = (RatioDynamicLayout.LayoutParams) child.getLayoutParams();
 
-                final int x = (int) (lp.x * containerHorizontalPixels);
-                final int y = (int) (lp.y * containerVerticalPixels);
 
                 Point childPixels;
                 if (lp.listener!=null){
@@ -215,32 +213,64 @@ public class RatioDynamicLayout extends ViewGroup {
                         (int) (containerHorizontalPixels * lp.ratio);
                 }
 
-
-                switch(lp.gravity & Gravity.VERTICAL_GRAVITY_MASK){
-                    case Gravity.BOTTOM:
-                        childTop = paddingTop + y - childPixels.y;
-                        break;
-                    case Gravity.CENTER_VERTICAL:
-                        childTop = paddingTop + y - childPixels.y/2;
-                        break;
-                    case Gravity.TOP:
-                    default:
-                        childTop = paddingTop + y;
+                if (lp.centerPoint!=null){
+                    childTop = lp.centerPoint.y - childPixels.y/2;
+                    switch (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) {
+                        case Gravity.BOTTOM:
+                            lp.y = (childBottom-paddingTop) / containerHorizontalPixels;
+                            break;
+                        case Gravity.CENTER_VERTICAL:
+                            lp.y = (childTop+(childBottom-childTop)/2-paddingTop) / containerHorizontalPixels;
+                            break;
+                        case Gravity.TOP:
+                        default:
+                            lp.y = (childTop-paddingTop) / containerHorizontalPixels;
+                    }
+                } else {
+                    final int y = (int) (lp.y * containerVerticalPixels);
+                    switch (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) {
+                        case Gravity.BOTTOM:
+                            childTop = paddingTop + y - childPixels.y;
+                            break;
+                        case Gravity.CENTER_VERTICAL:
+                            childTop = paddingTop + y - childPixels.y / 2;
+                            break;
+                        case Gravity.TOP:
+                        default:
+                            childTop = paddingTop + y;
+                    }
                 }
                 childBottom = childTop + childPixels.y;
 
-                switch(lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK){
-                    case Gravity.RIGHT:
-                        childLeft = paddingLeft + x - childPixels.x;
-                        break;
-                    case Gravity.CENTER_HORIZONTAL:
-                        childLeft = paddingLeft + x - childPixels.x/2;
-                        break;
-                    case Gravity.LEFT:
-                    default:
-                        childLeft = paddingLeft + x;
+                if (lp.centerPoint!=null) {
+                    childLeft = lp.centerPoint.x - childPixels.x/2;
+                    switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                        case Gravity.RIGHT:
+                            lp.x = (childRight-paddingLeft) / containerVerticalPixels;
+                            break;
+                        case Gravity.CENTER_HORIZONTAL:
+                            lp.x = (childLeft+(childRight-childLeft)/2-paddingLeft) / containerVerticalPixels;
+                            break;
+                        case Gravity.LEFT:
+                        default:
+                            lp.x = (childLeft-paddingLeft) / containerVerticalPixels;
+                    }
+                } else {
+                    final int x = (int) (lp.x * containerHorizontalPixels);
+                    switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                        case Gravity.RIGHT:
+                            childLeft = paddingLeft + x - childPixels.x;
+                            break;
+                        case Gravity.CENTER_HORIZONTAL:
+                            childLeft = paddingLeft + x - childPixels.x / 2;
+                            break;
+                        case Gravity.LEFT:
+                        default:
+                            childLeft = paddingLeft + x;
+                    }
                 }
                 childRight = childLeft + childPixels.x;
+                lp.centerPoint = null;
 
                 child.layout(childLeft, childTop, childRight, childBottom);
             }
@@ -284,9 +314,38 @@ public class RatioDynamicLayout extends ViewGroup {
          * The ratio of container percentage
          */
         public float ratio;
+        /**
+         * The {@link android.view.Gravity} from which the x,y eminates
+         */
         public int gravity;
+        /**
+         * The Listener enables the programmer to dynamically size the View held by this Layout.
+         */
         public Listener listener = null;
+        /**
+         * When the centerPoint is not null, the view is laid out around this point next time it's
+         * laid out. In this case the x,y are ignored for the purposes of laying out the View.
+         * However, x,y are recalculated based on the centerPoint.
+         */
+        public Point centerPoint = null;
+
+        /**
+         * Provides for the Dynamic portion of this layout. The layout defines the x,y coordinates
+         * and center point (through the gravity) for this layout. Implementing this interface
+         * allows the user of this layout to size the children based on the size of the layout
+         * itself.
+         *
+         * Todo: I'm not totally sure this is the best way to accomplish this goal.
+         */
         public interface Listener {
+            /**
+             * Allows the owner of the layout to size itself based on the layout parameters and the
+             * size of the container itself.
+             * @param lp
+             * @param containerWidth
+             * @param containerHeight
+             * @return A Point representing the width and height of the View held by this LayoutParams
+             */
             public Point measureForContainer(LayoutParams lp, int containerWidth, int containerHeight);
         }
         public LayoutParams(int width, int height) {
