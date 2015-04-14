@@ -3,5 +3,22 @@
         <attr name="paddingColor" format="color"/>
         <attr name="paddingFrameColor" format="color"/>
         <attr name="paddingFrameWidth" format="dimension"/>
+        <!-- Defines the gravity to apply to the padding. The gravity defaults to center. -->
+        <attr name="paddingGravity">
+            <!-- Minimize the padding at the top of the view. -->
+            <flag name="top" value="0x30" />
+            <!-- Minimize the padding at the bottom of the view. -->
+            <flag name="bottom" value="0x50" />
+            <!-- Minimize the padding at the left of the view. -->
+            <flag name="left" value="0x03" />
+            <!-- Minimize the padding at the right of the view. -->
+            <flag name="right" value="0x05" />
+            <!-- Evenly distribute the padding so that the view is centered vertically. -->
+            <flag name="center_vertical" value="0x10" />
+            <!-- Evenly distribute the padding so that the view is centered horizontally. -->
+            <flag name="center_horizontal" value="0x01" />
+            <!-- Evenly distribute the padding so that the view is centered. -->
+            <flag name="center" value="0x11" />
+        </attr>
     </declare-styleable>
 </resources>

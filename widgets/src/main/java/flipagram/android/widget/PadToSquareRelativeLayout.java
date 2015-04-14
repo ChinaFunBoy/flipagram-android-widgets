@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.RelativeLayout;
 
 import flipagram.android.widget.ondraw.PaddingColor;
@@ -34,6 +35,8 @@ import flipagram.android.widgets.R;
 public class PadToSquareRelativeLayout extends RelativeLayout {
     private Paint paddingPaint = new Paint(Color.TRANSPARENT);
     private Paint paddingFramePaint = new Paint(Color.TRANSPARENT);
+
+    private int paddingGravity = Gravity.CENTER;
 
     public PadToSquareRelativeLayout(Context context) {
         super(context);
@@ -73,6 +76,8 @@ public class PadToSquareRelativeLayout extends RelativeLayout {
             R.styleable.PadToSquareRelativeLayout_paddingFrameWidth,
             0f));
 
+        paddingGravity = a.getInt(R.styleable.PadToSquareRelativeLayout_paddingGravity,Gravity.CENTER);
+
         a.recycle();
     }
 
@@ -88,7 +93,7 @@ public class PadToSquareRelativeLayout extends RelativeLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        PaddingSquare.measure(this, widthMeasureSpec, heightMeasureSpec);
+        PaddingSquare.measure(this, widthMeasureSpec, heightMeasureSpec, paddingGravity);
     }
 
 
@@ -140,6 +145,22 @@ public class PadToSquareRelativeLayout extends RelativeLayout {
      */
     public void setPaddingFrameWidth(float paddingFrameWidth) {
         paddingFramePaint.setStrokeWidth(paddingFrameWidth);
+    }
+
+    /**
+     * Gets the padding Gravity
+     * @return the padding Gravity
+     */
+    public int getPaddingGravity() {
+        return paddingGravity;
+    }
+
+    /**
+     * Sets the padding Gravity
+     * @param paddingGravity the new padding Gravity
+     */
+    public void setPaddingGravity(int paddingGravity) {
+        this.paddingGravity = paddingGravity;
     }
 
 }
