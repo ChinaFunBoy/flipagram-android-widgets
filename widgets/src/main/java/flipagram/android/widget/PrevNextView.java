@@ -32,6 +32,7 @@ import flipagram.android.widgets.R;
 public class PrevNextView extends FrameLayout {
     private int nofmText;
 
+    private View prevTarget,nextTarget;
     private ImageButton prevButton,nextButton;
     private TextView nofmTextView;
     private int n = -1;
@@ -50,6 +51,8 @@ public class PrevNextView extends FrameLayout {
         super(context, attrs, defStyle);
         View.inflate(context, R.layout.view_prevnext, this);
 
+        prevTarget   = findViewById(R.id.prevTarget);
+        nextTarget   = findViewById(R.id.nextTarget);
         nofmTextView = TextView.class.cast(findViewById(R.id.nOfM));
         prevButton   = ImageButton.class.cast(findViewById(R.id.prevButton));
         nextButton   = ImageButton.class.cast(findViewById(R.id.nextButton));
@@ -106,11 +109,11 @@ public class PrevNextView extends FrameLayout {
     }
 
     public void setPrevOnClickedListener( OnClickListener listener ){
-        prevButton.setOnClickListener(listener);
+        prevTarget.setOnClickListener(listener);
     }
 
     public void setNextOnClickedListener( OnClickListener listener ){
-        nextButton.setOnClickListener(listener);
+        nextTarget.setOnClickListener(listener);
     }
 
 }
