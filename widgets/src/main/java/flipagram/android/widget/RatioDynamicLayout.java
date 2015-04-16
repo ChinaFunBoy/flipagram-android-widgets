@@ -180,18 +180,18 @@ public class RatioDynamicLayout extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int count = getChildCount();
 
-        int childLeft=0;
-        int childTop=0;
-        int childRight=0;
-        int childBottom=0;
+        float childLeft=0;
+        float childTop=0;
+        float childRight=0;
+        float childBottom=0;
 
-        final int paddingTop = getPaddingTop();
-        final int paddingLeft = getPaddingLeft();
-        final int verticalPadding = paddingTop + getPaddingBottom();
-        final int horizontalPadding = getPaddingLeft() + getPaddingRight();
+        final float paddingTop = getPaddingTop();
+        final float paddingLeft = getPaddingLeft();
+        final float verticalPadding = paddingTop + getPaddingBottom();
+        final float horizontalPadding = getPaddingLeft() + getPaddingRight();
 
-        final int containerVerticalPixels = getMeasuredHeight() - verticalPadding;
-        final int containerHorizontalPixels = getMeasuredWidth() - horizontalPadding;
+        final float containerVerticalPixels = getMeasuredHeight() - verticalPadding;
+        final float containerHorizontalPixels = getMeasuredWidth() - horizontalPadding;
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
@@ -201,7 +201,9 @@ public class RatioDynamicLayout extends ViewGroup {
 
                 Point childPixels;
                 if (lp.listener!=null){
-                    childPixels = lp.listener.measureForContainer(lp, containerHorizontalPixels, containerVerticalPixels);
+                    childPixels = lp.listener.measureForContainer( lp,
+                        (int) containerHorizontalPixels,
+                        (int) containerVerticalPixels );
                 } else {
                     childPixels = new Point();
                     childPixels.y = child.getMeasuredHeight() != 0 ?
@@ -215,16 +217,17 @@ public class RatioDynamicLayout extends ViewGroup {
 
                 if (lp.centerPoint!=null){
                     childTop = lp.centerPoint.y - childPixels.y/2;
+                    childBottom = childTop + childPixels.y;
                     switch (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) {
                         case Gravity.BOTTOM:
-                            lp.y = (childBottom-paddingTop) / containerHorizontalPixels;
+                            lp.y = (childBottom-paddingTop) / containerVerticalPixels;
                             break;
                         case Gravity.CENTER_VERTICAL:
-                            lp.y = (childTop+(childBottom-childTop)/2-paddingTop) / containerHorizontalPixels;
+                            lp.y = (childTop+(childBottom-childTop)/2-paddingTop) / containerVerticalPixels;
                             break;
                         case Gravity.TOP:
                         default:
-                            lp.y = (childTop-paddingTop) / containerHorizontalPixels;
+                            lp.y = (childTop-paddingTop) / containerVerticalPixels;
                     }
                 } else {
                     final int y = (int) (lp.y * containerVerticalPixels);
@@ -239,21 +242,22 @@ public class RatioDynamicLayout extends ViewGroup {
                         default:
                             childTop = paddingTop + y;
                     }
+                    childBottom = childTop + childPixels.y;
                 }
-                childBottom = childTop + childPixels.y;
 
                 if (lp.centerPoint!=null) {
                     childLeft = lp.centerPoint.x - childPixels.x/2;
+                    childRight = childLeft + childPixels.x;
                     switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
                         case Gravity.RIGHT:
-                            lp.x = (childRight-paddingLeft) / containerVerticalPixels;
+                            lp.x = (childRight-paddingLeft) / containerHorizontalPixels;
                             break;
                         case Gravity.CENTER_HORIZONTAL:
-                            lp.x = (childLeft+(childRight-childLeft)/2-paddingLeft) / containerVerticalPixels;
+                            lp.x = (childLeft+(childRight-childLeft)/2-paddingLeft) / containerHorizontalPixels;
                             break;
                         case Gravity.LEFT:
                         default:
-                            lp.x = (childLeft-paddingLeft) / containerVerticalPixels;
+                            lp.x = (childLeft-paddingLeft) / containerHorizontalPixels;
                     }
                 } else {
                     final int x = (int) (lp.x * containerHorizontalPixels);
@@ -268,11 +272,11 @@ public class RatioDynamicLayout extends ViewGroup {
                         default:
                             childLeft = paddingLeft + x;
                     }
+                    childRight = childLeft + childPixels.x;
                 }
-                childRight = childLeft + childPixels.x;
                 lp.centerPoint = null;
 
-                child.layout(childLeft, childTop, childRight, childBottom);
+                child.layout((int)childLeft, (int)childTop, (int)childRight, (int)childBottom);
             }
         }
     }
