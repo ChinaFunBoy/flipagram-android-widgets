@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/nOfM"
-        android:padding="8dp"
+        android:padding="14dp"
         >
         <ImageButton android:id="@+id/prevButton"
             android:layout_width="14dp"
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/nOfM"
-        android:padding="8dp"
+        android:padding="14dp"
         >
         <ImageButton android:id="@+id/nextButton"
             android:layout_width="14dp"
