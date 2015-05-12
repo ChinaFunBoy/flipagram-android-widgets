@@ -3,5 +3,8 @@
         <attr name="nofmText" format="reference"/>
         <attr name="prevDrawable" format="reference"/>
         <attr name="nextDrawable" format="reference"/>
+        <attr name="prevBackground" format="reference"/>
+        <attr name="nextBackground" format="reference"/>
+        <attr name="verticalPad" format="dimension"/>
     </declare-styleable>
 </resources>

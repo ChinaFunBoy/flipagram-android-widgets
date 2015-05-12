@@ -18,6 +18,7 @@ package flipagram.android.widget;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
@@ -32,7 +33,6 @@ import flipagram.android.widgets.R;
 public class PrevNextView extends FrameLayout {
     private int nofmText;
 
-    private View prevTarget,nextTarget;
     private ImageButton prevButton,nextButton;
     private TextView nofmTextView;
     private int n = -1;
@@ -51,8 +51,6 @@ public class PrevNextView extends FrameLayout {
         super(context, attrs, defStyle);
         View.inflate(context, R.layout.view_prevnext, this);
 
-        prevTarget   = findViewById(R.id.prevTarget);
-        nextTarget   = findViewById(R.id.nextTarget);
         nofmTextView = TextView.class.cast(findViewById(R.id.nOfM));
         prevButton   = ImageButton.class.cast(findViewById(R.id.prevButton));
         nextButton   = ImageButton.class.cast(findViewById(R.id.nextButton));
@@ -63,7 +61,11 @@ public class PrevNextView extends FrameLayout {
         nofmText = a.getResourceId(R.styleable.PrevNextView_nofmText,-1);
         prevButton.setImageDrawable(a.getDrawable(R.styleable.PrevNextView_prevDrawable));
         nextButton.setImageDrawable(a.getDrawable(R.styleable.PrevNextView_nextDrawable));
-
+        setBackground(prevButton, a.getDrawable(R.styleable.PrevNextView_prevBackground));
+        setBackground(nextButton, a.getDrawable(R.styleable.PrevNextView_nextBackground));
+        float verticalPad = a.getDimension(R.styleable.PrevNextView_verticalPad,10.0f);
+        prevButton.setPadding(0,(int)verticalPad,0,(int)verticalPad);
+        nextButton.setPadding(0,(int)verticalPad,0,(int)verticalPad);
         a.recycle();
 
         for(ImageButton button: new ImageButton[]{prevButton,nextButton}){
@@ -77,6 +79,15 @@ public class PrevNextView extends FrameLayout {
             return;
         }
         nofmTextView.setVisibility(GONE);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setBackground(View view, Drawable background){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setBackground(background);
+        } else {
+            view.setBackgroundDrawable(background);
+        }
     }
 
     private void updateUi(){
@@ -109,11 +120,11 @@ public class PrevNextView extends FrameLayout {
     }
 
     public void setPrevOnClickedListener( OnClickListener listener ){
-        prevTarget.setOnClickListener(listener);
+        prevButton.setOnClickListener(listener);
     }
 
     public void setNextOnClickedListener( OnClickListener listener ){
-        nextTarget.setOnClickListener(listener);
+        nextButton.setOnClickListener(listener);
     }
 
 }
