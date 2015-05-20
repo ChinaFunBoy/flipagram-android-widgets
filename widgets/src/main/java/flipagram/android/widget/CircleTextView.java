@@ -31,9 +31,9 @@ public class CircleTextView extends TextView {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.CircleTextView, defStyle, 0);
-        borderPaint.setStrokeWidth(a.getDimension(R.styleable.CircleTextView_borderSize, 0));
-        borderPaint.setColor(a.getColor(R.styleable.CircleTextView_borderColor,Color.TRANSPARENT));
-        fillPaint.setColor(a.getColor(R.styleable.CircleTextView_fillColor, Color.TRANSPARENT));
+        borderPaint.setStrokeWidth(a.getDimension(R.styleable.CircleTextView_circleBorderSize, 0));
+        borderPaint.setColor(a.getColor(R.styleable.CircleTextView_circleBorderColor,Color.TRANSPARENT));
+        fillPaint.setColor(a.getColor(R.styleable.CircleTextView_circleFillColor, Color.TRANSPARENT));
         a.recycle();
 
     }

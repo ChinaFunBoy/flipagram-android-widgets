@@ -75,9 +75,9 @@
                 android:padding="8dp"
                 android:textColor="#0f0"
                 android:gravity="center"
-                app:borderColor="@android:color/black"
-                app:borderSize="3dp"
-                app:fillColor="@android:color/holo_red_dark"
+                app:circleBorderColor="@android:color/black"
+                app:circleBorderSize="3dp"
+                app:circleFillColor="@android:color/holo_red_dark"
                 />
 
         </flipagram.android.widget.PadToSquareRelativeLayout>
