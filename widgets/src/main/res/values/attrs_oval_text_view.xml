@@ -1,0 +1,7 @@
+<resources>
+    <declare-styleable name="CircleTextView">
+        <attr name="circleBorderColor" format="color" />
+        <attr name="circleBorderSize" format="dimension" />
+        <attr name="circleFillColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -66,6 +66,20 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 />
+
+            <flipagram.android.widget.CircleTextView
+                android:text="@string/hello_world"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:padding="8dp"
+                android:textColor="#0f0"
+                android:gravity="center"
+                app:circleBorderColor="@android:color/black"
+                app:circleBorderSize="3dp"
+                app:circleFillColor="@android:color/holo_red_dark"
+                />
+
         </flipagram.android.widget.PadToSquareRelativeLayout>
     </RelativeLayout>
     <flipagram.android.widget.PrevNextView

@@ -27,18 +27,5 @@ public class RatioLayoutActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ratio_layout);
-
-        RatioDynamicLayout.LayoutParams.addDynamicLayout(findViewById(R.id.root), layoutListener);
     }
-
-    private RatioDynamicLayout.LayoutParams.Listener layoutListener = new RatioDynamicLayout.LayoutParams.Listener() {
-        @Override
-        public Point measureForContainer(RatioDynamicLayout.LayoutParams lp, int containerWidth, int containerHeight) {
-            Point pixels = new Point();
-            pixels.x = (int)(containerWidth * (2*lp.ratio));
-            pixels.y = (int)(containerHeight * (0.5*lp.ratio));
-            return pixels;
-        }
-    };
-
 }
