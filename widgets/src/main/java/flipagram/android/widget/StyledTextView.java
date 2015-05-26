@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
@@ -92,17 +92,17 @@ public class StyledTextView extends View {
         int setWidth;
         int setHeight;
 
-        Point size = null;
+        PointF size = null;
 
         if (widthMode == MeasureSpec.EXACTLY) {
             // Parent has told us how big to be. So be it.
             setWidth = widthSize;
         } else {
-            size = calculateSize();
+            size = calculateSize(onMeasurePoint);
             if (widthMeasureSpec == MeasureSpec.AT_MOST) {
-                setWidth = Math.min(widthSize, size.x);
+                setWidth = Math.min(widthSize, (int)size.x);
             } else {
-                setWidth = size.x;
+                setWidth = (int) size.x;
             }
         }
 
@@ -111,24 +111,25 @@ public class StyledTextView extends View {
             setHeight = heightSize;
         } else {
             if (size==null){
-                size = calculateSize();
+                size = calculateSize(onMeasurePoint);
             }
             if (heightMeasureSpec == MeasureSpec.AT_MOST) {
-                setHeight = Math.min(heightSize, size.y);
+                setHeight = Math.min(heightSize, (int)size.y);
             } else {
-                setHeight = size.y;
+                setHeight = (int)size.y;
             }
         }
 
         setMeasuredDimension(setWidth, setHeight);
     }
+    private PointF onMeasurePoint = new PointF();
 
     /**
      * Calculate the width/depth of the View in pixels
-     * @return a Point that has the width/depth of the View in pixels
+     * @param point the PointF to return
+     * @return a PointF that has the width/depth of the View in pixels
      */
-    public Point calculateSize(){
-        final Point ret = new Point();
+    public PointF calculateSize(final PointF point){
         final Rect textBounds = new Rect();
         final String endCaps = "..";
         final Paint.FontMetrics fm = paint.getFontMetrics();
@@ -139,15 +140,17 @@ public class StyledTextView extends View {
         paint.getTextBounds(endCaps, 0, endCaps.length(), textBounds);
         final int endCapsLength = textBounds.width();
 
+        point.set(0, 0);
         float lineHeight = -fm.top + fm.leading;
         for (String line : text.toString().split("\n")) {
             line = builder.append(".").append(line).append(".").toString();
             builder.setLength(0);
             paint.getTextBounds(line, 0, line.length(), textBounds);
-            ret.x = Math.max(ret.x, textBounds.width() - endCapsLength);
-            ret.y += lineHeight;
+            point.x = Math.max(point.x, textBounds.width() - endCapsLength);
+            point.y += lineHeight;
         }
-        return ret;
+        point.y += fm.bottom;
+        return point;
     }
 
     // getter / setters
