@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -68,6 +67,7 @@
                 />
 
             <flipagram.android.widget.CircleTextView
+                android:id="@+id/circleTextView"
                 android:text="@string/hello_world"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -78,6 +78,30 @@
                 app:circleBorderColor="@android:color/black"
                 app:circleBorderSize="3dp"
                 app:circleFillColor="@android:color/holo_red_dark"
+                />
+
+            <flipagram.android.widget.TriangleView
+                android:id="@+id/triangleView"
+                android:layout_width="20dp"
+                android:layout_height="10dp"
+                android:layout_below="@id/circleTextView"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp"
+                android:text="@string/hello_world"
+                app:triangleFillColor="@android:color/holo_blue_bright"
+                app:triangleDirection="north"
+                />
+
+            <flipagram.android.widget.CoachTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/triangleView"
+                android:layout_centerHorizontal="true"
+                android:translationX="-20dp"
+                android:padding="10dp"
+                android:text="@string/hello_world"
+                app:coachFillColor="@android:color/holo_blue_bright"
+                app:coachRadius="5dp"
                 />
 
         </flipagram.android.widget.PadToSquareRelativeLayout>

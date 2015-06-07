@@ -1,0 +1,19 @@
+<resources>
+    <declare-styleable name="CoachTextView">
+        <attr name="coachFillColor" format="color" />
+        <attr name="coachRadius" format="dimension" />
+        <attr name="coachTickSize" format="dimension" />
+        <attr name="coachTickPosition">
+            <flag name="none"   value="0x00"/>
+            <flag name="north"  value="0x10"/>
+            <flag name="east"   value="0x20"/>
+            <flag name="south"  value="0x40"/>
+            <flag name="west"   value="0x80"/>
+            <flag name="center" value="0x00"/>
+            <flag name="top"    value="0x01"/>
+            <flag name="left"   value="0x01"/>
+            <flag name="bottom" value="0x02"/>
+            <flag name="right"  value="0x02"/>
+        </attr>
+    </declare-styleable>
+</resources>

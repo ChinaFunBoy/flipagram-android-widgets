@@ -1,0 +1,11 @@
+<resources>
+    <declare-styleable name="TriangleView">
+        <attr name="triangleFillColor" format="color" />
+        <attr name="triangleDirection">
+            <flag name="north"  value="0x1"/>
+            <flag name="east"   value="0x2"/>
+            <flag name="south"  value="0x4"/>
+            <flag name="west"   value="0x8"/>
+        </attr>
+    </declare-styleable>
+</resources>
