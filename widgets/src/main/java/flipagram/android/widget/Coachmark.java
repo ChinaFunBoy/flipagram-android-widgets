@@ -38,8 +38,8 @@ public class Coachmark {
     public abstract static class Target{
         public enum Direction {North, South, East, West}
 
-        protected Direction from;
-        protected Direction skew;
+        protected Direction points = Direction.North;
+        protected Direction skew = null;
         protected float skewPercent;
         protected String text;
 
@@ -64,8 +64,8 @@ public class Coachmark {
             this.triangle = new TriangleView(context);
             this.textView = new CoachTextView(context);
         }
-        public Target from(Direction direction){
-            this.from = direction;
+        public Target pointing(Direction direction){
+            this.points = direction;
             return this;
         }
         public Target skew(Direction skew, float percent){
@@ -107,7 +107,6 @@ public class Coachmark {
         public TargetToolbarActionBar(Toolbar toolbar){
             super(toolbar.getContext());
             this.toolbar = toolbar;
-            this.from = Direction.South;
         }
 
         public View getView(){
@@ -211,7 +210,7 @@ public class Coachmark {
                     ViewGroup.LayoutParams.MATCH_PARENT));
         }
         private int getTriangleHorizontalSize(Target target){
-            switch(target.from){
+            switch(target.points){
                 case East:
                 case West:
                     return (int)dp(TRIANGLE_CENTROID);
@@ -220,7 +219,7 @@ public class Coachmark {
             }
         }
         private int getTriangleVerticalSize(Target target){
-            switch(target.from){
+            switch(target.points){
                 case East:
                 case West:
                     return (int)dp(TRIANGLE_BASE);
@@ -248,8 +247,8 @@ public class Coachmark {
         int offsetX = 0;
         int offsetY = target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0);
 
-        switch (target.from) {
-            case North:
+        switch (target.points) {
+            case South:
                 target.triangle.setDirection(TriangleView.POSITION_SOUTH);
                 triMidBase.set(
                         offsetX + view.getLeft() + view.getWidth() / 2,
@@ -261,7 +260,7 @@ public class Coachmark {
                 target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
                 target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
                 break;
-            case South:
+            case North:
                 target.triangle.setDirection(TriangleView.POSITION_NORTH);
                 triMidBase.set(
                         offsetX + view.getLeft() + view.getWidth() / 2,
@@ -273,7 +272,7 @@ public class Coachmark {
                 target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
                 target.textView.setTranslationY(triMidBase.y);
                 break;
-            case East:
+            case West:
                 target.triangle.setDirection(TriangleView.POSITION_WEST);
                 triMidBase.set(
                         offsetX + view.getLeft() + view.getWidth() + target.triangle.getWidth(),
@@ -286,7 +285,7 @@ public class Coachmark {
                 target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
                 break;
             default:
-            case West:
+            case East:
                 target.triangle.setDirection(TriangleView.POSITION_EAST);
                 triMidBase.set(
                         offsetX + view.getLeft() - target.triangle.getWidth(),
