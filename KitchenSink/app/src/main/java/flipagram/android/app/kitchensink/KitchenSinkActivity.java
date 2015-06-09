@@ -79,7 +79,9 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.TargetToolbarActionBar(toolbar)
                                 .skewed(Coachmark.Target.Direction.East, 0.75f)
-                                .withText("Next Text")
+                                .withText("This is the next button.\n" +
+                                        "You can press it to go to\n" +
+                                        "the next screen.")
                 )
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))

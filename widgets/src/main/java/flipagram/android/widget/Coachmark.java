@@ -22,11 +22,9 @@ public class Coachmark {
     private static final int TRIANGLE_BASE = 20; // dips
     private static final int TRIANGLE_CENTROID = 10; // dips
 
-    private final SharedPreferences settings;
     private final DisplayMetrics displayMetrics;
     private final Activity activity;
     private final View activityContent;
-    private final String key;
     private final List<Target> targets = new ArrayList<Target>();
     private final int backgroundColor;
     private final int textColor;
@@ -67,8 +65,8 @@ public class Coachmark {
          * bar and some are expressed in coordinates relative to the bottom of the action bar.
          * This probably isn't the best way of handling this particular Android wrinkle, but it
          * works for now.
-         * @param actionBarHeight
-         * @return
+         * @param actionBarHeight the height of the action bar
+         * @return the chosen offset
          */
         public abstract int getOffsetGivenActionBarHeight(int actionBarHeight);
 
@@ -130,28 +128,24 @@ public class Coachmark {
         }
     }
 
-    private Coachmark(){
-        throw new IllegalArgumentException("Activity can't be null");
-    }
-
     public Coachmark(Activity activity, String key, int backgroundColor, int textColor){
+        TypedValue tv = new TypedValue();
+        SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
         this.activity = activity;
-        this.key = key;
         this.backgroundColor = backgroundColor;
         this.textColor = textColor;
-        this.settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         this.activityContent = activity.findViewById(android.R.id.content);
         this.displayMetrics = activity.getResources().getDisplayMetrics();
 
-        TypedValue tv = new TypedValue();
         actionBarHeight = activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)?
-                TypedValue.complexToDimensionPixelSize(tv.data, displayMetrics):
-                0;
+            TypedValue.complexToDimensionPixelSize(tv.data, displayMetrics):
+            0;
 
         showCoachmarks = !settings.getBoolean(key,false); // Show them if we have not
         if (showCoachmarks){
             // Don't show them again
-            settings.edit().putBoolean(key,true).commit();
+            settings.edit().putBoolean(key,true).apply();
         }
     }
 
@@ -255,62 +249,69 @@ public class Coachmark {
     };
 
     private void positionTarget(Target target, View view){
-        Point triMidBase = new Point();
-        int triOffX = getSkewXOffset(target,view);
-        int triOffY = getSkewYOffset(target,view)
-                      + target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0);
+        Point triMidBase = new Point(
+                getSkewXOffset(target,view),
+                getSkewYOffset(target,view)
+                        + target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0)
+        );
 
         switch (target.points) {
             case South:
                 target.triangle.setDirection(TriangleView.POSITION_SOUTH);
-                triMidBase.set(
-                        triOffX + view.getLeft() + view.getWidth() / 2,
-                        triOffY + view.getTop() - target.triangle.getHeight()
+                triMidBase.offset(
+                        view.getLeft() + view.getWidth() / 2,
+                        view.getTop() - target.triangle.getHeight()
                 );
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
+
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
                 target.triangle.setTranslationY(triMidBase.y);
 
-                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
-                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
                 break;
             case North:
                 target.triangle.setDirection(TriangleView.POSITION_NORTH);
-                triMidBase.set(
-                        triOffX + view.getLeft() + view.getWidth() / 2,
-                        triOffY + view.getTop() + view.getHeight() + target.triangle.getHeight()
+                triMidBase.offset(
+                        view.getLeft() + view.getWidth() / 2,
+                        view.getTop() + view.getHeight() + target.triangle.getHeight()
                 );
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                target.textView.setTranslationY(triMidBase.y);
+
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight());
 
-                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
-                target.textView.setTranslationY(triMidBase.y);
                 break;
             case West:
                 target.triangle.setDirection(TriangleView.POSITION_WEST);
-                triMidBase.set(
-                        triOffX + view.getLeft() + view.getWidth() + target.triangle.getWidth(),
-                        triOffY + view.getTop() + view.getHeight() / 2
+                triMidBase.offset(
+                        view.getLeft() + view.getWidth() + target.triangle.getWidth(),
+                        view.getTop() + view.getHeight() / 2
                 );
+                target.textView.setTranslationX(triMidBase.x);
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth());
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
 
-                target.textView.setTranslationX(triMidBase.x);
-                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
                 break;
             default:
             case East:
                 target.triangle.setDirection(TriangleView.POSITION_EAST);
-                triMidBase.set(
-                        triOffX + view.getLeft() - target.triangle.getWidth(),
-                        triOffY + view.getTop() + view.getHeight() / 2
+                triMidBase.offset(
+                        view.getLeft() - target.triangle.getWidth(),
+                        view.getTop() + view.getHeight() / 2
                 );
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+
                 target.triangle.setTranslationX(triMidBase.x);
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
 
-                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
-                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
                 break;
         }
+        target.triangle.setTranslationX(target.triangle.getTranslationX()+getTriangleSkewX(target));
+        target.triangle.setTranslationY(target.triangle.getTranslationY() + getTriangleSkewY(target));
     }
 
     private int getSkewXOffset(Target target, View view){
@@ -328,6 +329,22 @@ public class Coachmark {
         }
         validateVectors(target);
         int offset = (int) ( ((float)view.getHeight()/2) * target.skewPercent);
+        return offset * (target.skews==Target.Direction.North?-1:1);
+    }
+
+    private int getTriangleSkewX(Target target){
+        if (target.skews==null || target.skews.vector==Target.LATITUDINAL) {
+            return 0;
+        }
+        int offset = target.textView.getWidth()/5;
+        return offset * (target.skews==Target.Direction.West?-1:1);
+    }
+
+    private int getTriangleSkewY(Target target){
+        if (target.skews==null || target.skews.vector==Target.LONGITUDINAL) {
+            return 0;
+        }
+        int offset = target.textView.getHeight()/5;
         return offset * (target.skews==Target.Direction.North?-1:1);
     }
 
