@@ -78,7 +78,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 )
                 .withTarget(
                         new Coachmark.TargetToolbarActionBar(toolbar)
-                                .skew(Coachmark.Target.Direction.East, 0.9f)
+                                .skewed(Coachmark.Target.Direction.East, 0.75f)
                                 .withText("Next Text")
                 )
                 .withTarget(

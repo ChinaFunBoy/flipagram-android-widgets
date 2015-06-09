@@ -36,10 +36,22 @@ public class Coachmark {
 
 
     public abstract static class Target{
-        public enum Direction {North, South, East, West}
+        static final int LATITUDINAL = 1;
+        static final int LONGITUDINAL= 2;
+        public enum Direction {
+            North(LATITUDINAL),
+            South(LATITUDINAL),
+            East(LONGITUDINAL),
+            West(LONGITUDINAL),
+            ;
+            int vector;
+            Direction(int vector){
+                this.vector = vector;
+            }
+        }
 
         protected Direction points = Direction.North;
-        protected Direction skew = null;
+        protected Direction skews = null;
         protected float skewPercent;
         protected String text;
 
@@ -68,8 +80,8 @@ public class Coachmark {
             this.points = direction;
             return this;
         }
-        public Target skew(Direction skew, float percent){
-            this.skew = skew;
+        public Target skewed(Direction skews, float percent){
+            this.skews = skews;
             this.skewPercent = percent;
             return this;
         }
@@ -244,15 +256,16 @@ public class Coachmark {
 
     private void positionTarget(Target target, View view){
         Point triMidBase = new Point();
-        int offsetX = 0;
-        int offsetY = target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0);
+        int triOffX = getSkewXOffset(target,view);
+        int triOffY = getSkewYOffset(target,view)
+                      + target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0);
 
         switch (target.points) {
             case South:
                 target.triangle.setDirection(TriangleView.POSITION_SOUTH);
                 triMidBase.set(
-                        offsetX + view.getLeft() + view.getWidth() / 2,
-                        offsetY + view.getTop() - target.triangle.getHeight()
+                        triOffX + view.getLeft() + view.getWidth() / 2,
+                        triOffY + view.getTop() - target.triangle.getHeight()
                 );
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
                 target.triangle.setTranslationY(triMidBase.y);
@@ -263,8 +276,8 @@ public class Coachmark {
             case North:
                 target.triangle.setDirection(TriangleView.POSITION_NORTH);
                 triMidBase.set(
-                        offsetX + view.getLeft() + view.getWidth() / 2,
-                        offsetY + view.getTop() + view.getHeight() + target.triangle.getHeight()
+                        triOffX + view.getLeft() + view.getWidth() / 2,
+                        triOffY + view.getTop() + view.getHeight() + target.triangle.getHeight()
                 );
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight());
@@ -275,8 +288,8 @@ public class Coachmark {
             case West:
                 target.triangle.setDirection(TriangleView.POSITION_WEST);
                 triMidBase.set(
-                        offsetX + view.getLeft() + view.getWidth() + target.triangle.getWidth(),
-                        offsetY + view.getTop() + view.getHeight() / 2
+                        triOffX + view.getLeft() + view.getWidth() + target.triangle.getWidth(),
+                        triOffY + view.getTop() + view.getHeight() / 2
                 );
                 target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth());
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
@@ -288,8 +301,8 @@ public class Coachmark {
             case East:
                 target.triangle.setDirection(TriangleView.POSITION_EAST);
                 triMidBase.set(
-                        offsetX + view.getLeft() - target.triangle.getWidth(),
-                        offsetY + view.getTop() + view.getHeight() / 2
+                        triOffX + view.getLeft() - target.triangle.getWidth(),
+                        triOffY + view.getTop() + view.getHeight() / 2
                 );
                 target.triangle.setTranslationX(triMidBase.x);
                 target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
@@ -297,6 +310,30 @@ public class Coachmark {
                 target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
                 target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
                 break;
+        }
+    }
+
+    private int getSkewXOffset(Target target, View view){
+        if (target.skews==null || target.skews.vector==Target.LATITUDINAL) {
+            return 0;
+        }
+        validateVectors(target);
+        int offset = (int) ( ((float)view.getWidth()/2) * target.skewPercent);
+        return offset * (target.skews==Target.Direction.West?-1:1);
+    }
+
+    private int getSkewYOffset(Target target, View view){
+        if (target.skews==null || target.skews.vector==Target.LONGITUDINAL) {
+            return 0;
+        }
+        validateVectors(target);
+        int offset = (int) ( ((float)view.getHeight()/2) * target.skewPercent);
+        return offset * (target.skews==Target.Direction.North?-1:1);
+    }
+
+    private void validateVectors(Target target){
+        if (target.skews!=null && target.points.vector==target.skews.vector){
+            throw new IllegalArgumentException("Bad skew direction");
         }
     }
 
