@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -28,6 +29,8 @@ public class Coachmark {
     private final String key;
     private final List<TargetView> targetViews = new ArrayList<TargetView>();
     private final int backgroundColor;
+    private final int textColor;
+    private Toolbar toolbar = null;
 
     public static class TargetView {
         private final View view;
@@ -61,10 +64,11 @@ public class Coachmark {
         throw new IllegalArgumentException("Activity can't be null");
     }
 
-    public Coachmark(Activity activity, String key, int backgroundColor){
+    public Coachmark(Activity activity, String key, int backgroundColor, int textColor){
         this.activity = activity;
         this.key = key;
         this.backgroundColor = backgroundColor;
+        this.textColor = textColor;
         this.settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         this.activityContent = activity.findViewById(android.R.id.content);
         this.displayMetrics = activity.getResources().getDisplayMetrics();
@@ -77,6 +81,11 @@ public class Coachmark {
 
     public Coachmark removeKey(){
         settings.edit().remove(key).commit();
+        return this;
+    }
+
+    public Coachmark withToolBar(Toolbar toolbar) {
+        this.toolbar = toolbar;
         return this;
     }
 
@@ -135,6 +144,7 @@ public class Coachmark {
                 target.textView.setText(target.text);
                 target.textView.setCoachRadius(dp(5));
                 target.textView.setCoachFillColor(backgroundColor);
+                target.textView.setTextColor(textColor);
                 coachmarks.addView(target.textView);
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
@@ -175,13 +185,20 @@ public class Coachmark {
                 activityContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
             Point triMidBase = new Point();
+            int offsetX = 0;
+            int offsetY = 0;
+
+            if (toolbar!=null){
+                offsetY += toolbar.getHeight();
+            }
+
             for(TargetView target : targetViews){
                 switch(target.direction){
                     case North:
                         target.triangle.setDirection(TriangleView.POSITION_SOUTH);
                         triMidBase.set(
-                                target.view.getLeft()+target.view.getWidth()/2,
-                                target.view.getTop() - target.triangle.getHeight()
+                                offsetX+target.view.getLeft()+target.view.getWidth()/2,
+                                offsetY+target.view.getTop() - target.triangle.getHeight()
                         );
                         target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
                         target.triangle.setTranslationY(triMidBase.y);
@@ -192,8 +209,8 @@ public class Coachmark {
                     case South:
                         target.triangle.setDirection(TriangleView.POSITION_NORTH);
                         triMidBase.set(
-                                target.view.getLeft()+target.view.getWidth()/2,
-                                target.view.getTop()+target.view.getHeight()+target.triangle.getHeight()
+                                offsetX+target.view.getLeft()+target.view.getWidth()/2,
+                                offsetY+target.view.getTop()+target.view.getHeight()+target.triangle.getHeight()
                         );
                         target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
                         target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight());
@@ -204,8 +221,8 @@ public class Coachmark {
                     case East:
                         target.triangle.setDirection(TriangleView.POSITION_WEST);
                         triMidBase.set(
-                                target.view.getLeft()+target.view.getWidth()+target.triangle.getWidth(),
-                                target.view.getTop()+target.view.getHeight()/2
+                                offsetX+target.view.getLeft()+target.view.getWidth()+target.triangle.getWidth(),
+                                offsetY+target.view.getTop()+target.view.getHeight()/2
                         );
                         target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth());
                         target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);
@@ -217,8 +234,8 @@ public class Coachmark {
                     case West:
                         target.triangle.setDirection(TriangleView.POSITION_EAST);
                         triMidBase.set(
-                                target.view.getLeft()-target.triangle.getWidth(),
-                                target.view.getTop()+target.view.getHeight()/2
+                                offsetX+target.view.getLeft()-target.triangle.getWidth(),
+                                offsetY+target.view.getTop()+target.view.getHeight()/2
                         );
                         target.triangle.setTranslationX(triMidBase.x);
                         target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);

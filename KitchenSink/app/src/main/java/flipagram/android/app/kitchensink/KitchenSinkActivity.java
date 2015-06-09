@@ -18,6 +18,7 @@ package flipagram.android.app.kitchensink;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,8 @@ public class KitchenSinkActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         final PrevNextView pn = PrevNextView.class.cast(findViewById(R.id.prevnext));
         pn.setN(1);
@@ -65,8 +68,11 @@ public class KitchenSinkActivity extends ActionBarActivity {
             }
         });
 
-        new Coachmark(this,COACH_KEY, getResources().getColor(android.R.color.holo_blue_bright))
+        int backgroundColor = getResources().getColor(android.R.color.holo_orange_dark);
+        int textColor = getResources().getColor(android.R.color.white);
+        new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .removeKey()
+                .withToolBar((Toolbar)findViewById(R.id.toolbar))
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
                                 .fromDirection(Coachmark.TargetView.Direction.South)
@@ -85,7 +91,9 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .fromDirection(Coachmark.TargetView.Direction.South)
-                                .withText("South")
+                                .withText("This is the southern most tip\n" +
+                                        "of the cirlce. It's a nice circle.\n" +
+                                        "It does nothing but be a circle.")
                 )
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
