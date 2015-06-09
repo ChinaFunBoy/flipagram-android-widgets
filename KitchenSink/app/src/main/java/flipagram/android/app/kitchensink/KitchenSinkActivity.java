@@ -74,6 +74,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
                                 .pointing(Coachmark.TargetView.Direction.North)
+                                .skewTriangleDirection(Coachmark.Target.Direction.West, 0.5f)
                                 .withText("Start a PercentLayout")
                 )
                 .withTarget(
@@ -87,13 +88,11 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.TargetView.Direction.South)
-                                .skewTextDirection(Coachmark.Target.Direction.East, 0.50f)
                                 .withText("Points South")
                 )
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.TargetView.Direction.North)
-                                .skewTextDirection(Coachmark.Target.Direction.West, 0.50f)
                                 .withText("This is the southern most tip\n" +
                                         "of the cirlce. It's a nice circle.\n" +
                                         "It does nothing but be a circle.")
@@ -101,13 +100,11 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.TargetView.Direction.West)
-                                .skewTextDirection(Coachmark.Target.Direction.South, 0.50f)
                                 .withText("Points West")
                 )
                 .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.TargetView.Direction.East)
-                                .skewTextDirection(Coachmark.Target.Direction.North, 0.50f)
                                 .withText("Points East")
                 )
                 .showTargetViews();
