@@ -22,6 +22,7 @@ public class Coachmark {
     private static final int TRIANGLE_BASE = 20; // dips
     private static final int TRIANGLE_CENTROID = 10; // dips
     private static final int MARGIN = 16; //dips
+    private static final int COACHMARK_CORNER_RADIUS = 5;
 
     private final DisplayMetrics displayMetrics;
     private final Activity activity;
@@ -37,21 +38,27 @@ public class Coachmark {
         static final int LATITUDINAL = 1;
         static final int LONGITUDINAL= 2;
         public enum Direction {
-            North(LATITUDINAL),
-            South(LATITUDINAL),
-            East(LONGITUDINAL),
-            West(LONGITUDINAL),
+            North(LATITUDINAL,-1),
+            South(LATITUDINAL,1),
+            East(LONGITUDINAL,1),
+            West(LONGITUDINAL,-1),
             ;
             int vector;
-            Direction(int vector){
+            int grows;
+            Direction(int vector, int grows){
                 this.vector = vector;
+                this.grows = grows;
             }
         }
 
         protected Direction points = Direction.North;
-        protected Direction skews = null;
-        protected float skewPercent;
         protected String text;
+
+        protected Direction skewText = null;
+        protected float skewTextPercent;
+
+        protected Direction skewTriangle = null;
+        protected float skewTrianglePercent;
 
         protected final TriangleView triangle;
         protected final CoachTextView textView;
@@ -78,9 +85,14 @@ public class Coachmark {
             this.points = direction;
             return this;
         }
-        public Target skewed(Direction skews, float percent){
-            this.skews = skews;
-            this.skewPercent = percent;
+        public Target skewTextDirection(Direction direction, float percent){
+            this.skewText = direction;
+            this.skewTextPercent = percent;
+            return this;
+        }
+        public Target skewTriangleDirection(Direction direction, float percent){
+            this.skewTriangle = direction;
+            this.skewTrianglePercent = percent;
             return this;
         }
         public Target withText(String text){
@@ -206,7 +218,7 @@ public class Coachmark {
                 ));
                 target.textView.setPadding((int)dp(10),(int)dp(10),(int)dp(10),(int)dp(10));
                 target.textView.setText(target.text);
-                target.textView.setCoachRadius(dp(5));
+                target.textView.setCoachRadius(dp(COACHMARK_CORNER_RADIUS));
                 target.textView.setCoachFillColor(backgroundColor);
                 target.textView.setTextColor(textColor);
                 coachmarks.addView(target.textView);
@@ -258,48 +270,51 @@ public class Coachmark {
         /** The upper left corner of the triangle. This is where it ends up */
         Point trianglePoint = new Point();
 
+        Point skewTextDimensions = getSkewTextDimensions(target,view);
+        Point skewTriangleDimensions = getSkewTriangleDimensions(target);
+
         switch (target.points) {
             case South:
                 target.triangle.setDirection(TriangleView.POSITION_SOUTH);
                 textViewCenterOfAdjacentSide.offset(
                         view.getLeft() + view.getWidth() / 2,
                         view.getTop() - target.triangle.getHeight());
-                textViewCenterOfAdjacentSide.offset(getSkewXOffset(target,view),getSkewYOffset(target,view));
+                textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y - target.textView.getHeight());
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y);
-                trianglePoint.offset(getTriangleSkewX(target),getTriangleSkewY(target));
+                trianglePoint.offset(skewTriangleDimensions.x,skewTriangleDimensions.y);
                 break;
             case North:
                 target.triangle.setDirection(TriangleView.POSITION_NORTH);
                 textViewCenterOfAdjacentSide.offset(
                         view.getLeft() + view.getWidth() / 2,
                         view.getTop() + view.getHeight() + target.triangle.getHeight());
-                textViewCenterOfAdjacentSide.offset(getSkewXOffset(target,view),getSkewYOffset(target,view));
+                textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y - target.triangle.getHeight());
-                trianglePoint.offset(getTriangleSkewX(target),getTriangleSkewY(target));
+                trianglePoint.offset(skewTriangleDimensions.x,skewTriangleDimensions.y);
                 break;
             case West:
                 target.triangle.setDirection(TriangleView.POSITION_WEST);
                 textViewCenterOfAdjacentSide.offset(
                         view.getLeft() + view.getWidth() + target.triangle.getWidth(),
                         view.getTop() + view.getHeight() / 2);
-                textViewCenterOfAdjacentSide.offset(getSkewXOffset(target,view),getSkewYOffset(target,view));
+                textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x,
                         textViewCenterOfAdjacentSide.y - target.textView.getHeight() / 2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth(),
                         textViewCenterOfAdjacentSide.y - target.triangle.getHeight() / 2);
-                trianglePoint.offset(getTriangleSkewX(target),getTriangleSkewY(target));
+                trianglePoint.offset(skewTriangleDimensions.x,skewTriangleDimensions.y);
                 break;
             default:
             case East:
@@ -307,26 +322,26 @@ public class Coachmark {
                 textViewCenterOfAdjacentSide.offset(
                         view.getLeft() - target.triangle.getWidth(),
                         view.getTop() + view.getHeight() / 2);
-                textViewCenterOfAdjacentSide.offset(getSkewXOffset(target,view),getSkewYOffset(target,view));
+                textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth(),
                         textViewCenterOfAdjacentSide.y - target.textView.getHeight() / 2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x,
                         textViewCenterOfAdjacentSide.y - target.triangle.getHeight() / 2);
-                trianglePoint.offset(getTriangleSkewX(target),getTriangleSkewY(target));
+                trianglePoint.offset(skewTriangleDimensions.x,skewTriangleDimensions.y);
                 break;
         }
-        Point fixPoint = getFixPoint(target,textViewPoint);
-        textViewPoint.offset(fixPoint.x,fixPoint.y);
-        trianglePoint.offset(fixPoint.x,fixPoint.y);
+        Point fix = getFixDimensions(target, textViewPoint);
+        textViewPoint.offset(fix.x,fix.y);
+        trianglePoint.offset(fix.x,fix.y);
         target.textView.setTranslationX(textViewPoint.x);
         target.textView.setTranslationY(textViewPoint.y);
         target.triangle.setTranslationX(trianglePoint.x);
         target.triangle.setTranslationY(trianglePoint.y);
     }
 
-    private Point getFixPoint(Target target, Point textViewPoint){
+    private Point getFixDimensions(Target target, Point textViewPoint){
         Point fix = new Point();
         int margin = (int)dp(MARGIN);
         if (textViewPoint.x<margin){
@@ -342,44 +357,37 @@ public class Coachmark {
         return fix;
     }
 
-    private int getSkewXOffset(Target target, View view){
-        if (target.skews==null || target.skews.vector==Target.LATITUDINAL) {
-            return 0;
+    private Point getSkewTextDimensions(Target target, View view){
+        Point dim = new Point();
+        if (target.skewText!=null){
+            if (target.skewText !=null && target.points.vector==target.skewText.vector){
+                throw new IllegalArgumentException("Bad skew direction");
+            }
+            if (target.skewText.vector==Target.LATITUDINAL) {
+                dim.set(0,target.skewText.grows * (int) ( ((float)view.getHeight()/2) * target.skewTextPercent));
+            } else {
+                dim.set(target.skewText.grows * (int) ( ((float)view.getWidth()/2) * target.skewTextPercent),0);
+            }
         }
-        validateVectors(target);
-        int offset = (int) ( ((float)view.getWidth()/2) * target.skewPercent);
-        return offset * (target.skews==Target.Direction.West?-1:1);
+        return dim;
     }
 
-    private int getSkewYOffset(Target target, View view){
-        if (target.skews==null || target.skews.vector==Target.LONGITUDINAL) {
-            return 0;
+    private Point getSkewTriangleDimensions(Target target){
+        Point dim = new Point();
+        float twoRadians = dp(COACHMARK_CORNER_RADIUS * 2);
+        if (target.skewTriangle!=null){
+            if (target.skewTriangle !=null && target.points.vector==target.skewTriangle.vector){
+                throw new IllegalArgumentException("Bad skew direction");
+            }
+            if (target.skewTriangle.vector==Target.LATITUDINAL) {
+                float maxHigh = target.textView.getHeight() / 2 - twoRadians;
+                dim.set(0,target.skewTriangle.grows * (int) ( maxHigh * target.skewTrianglePercent));
+            } else {
+                float maxWide = target.textView.getWidth() / 2 - twoRadians;
+                dim.set(target.skewTriangle.grows * (int) ( maxWide * target.skewTrianglePercent),0);
+            }
         }
-        validateVectors(target);
-        int offset = (int) ( ((float)view.getHeight()/2) * target.skewPercent);
-        return offset * (target.skews==Target.Direction.North?-1:1);
-    }
-
-    private int getTriangleSkewX(Target target){
-        if (target.skews==null || target.skews.vector==Target.LATITUDINAL) {
-            return 0;
-        }
-        int offset = target.textView.getWidth()/5;
-        return offset * (target.skews==Target.Direction.West?-1:1);
-    }
-
-    private int getTriangleSkewY(Target target){
-        if (target.skews==null || target.skews.vector==Target.LONGITUDINAL) {
-            return 0;
-        }
-        int offset = target.textView.getHeight()/5;
-        return offset * (target.skews==Target.Direction.North?-1:1);
-    }
-
-    private void validateVectors(Target target){
-        if (target.skews!=null && target.points.vector==target.skews.vector){
-            throw new IllegalArgumentException("Bad skew direction");
-        }
+        return dim;
     }
 
     private void addGlobalLayoutListener(View onView, ViewTreeObserver.OnGlobalLayoutListener listener){
