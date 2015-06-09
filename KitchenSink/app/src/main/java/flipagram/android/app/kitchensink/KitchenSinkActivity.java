@@ -23,10 +23,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import flipagram.android.widget.Coachmark;
 import flipagram.android.widget.PrevNextView;
 
 
 public class KitchenSinkActivity extends ActionBarActivity {
+
+    private final String COACH_KEY = "KitchenSinkActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,42 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 startActivity(new Intent(KitchenSinkActivity.this,RatioLayoutActivity.class));
             }
         });
+
+        new Coachmark(this,COACH_KEY, getResources().getColor(android.R.color.holo_blue_bright))
+                .removeKey()
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
+                                .fromDirection(Coachmark.TargetView.Direction.South)
+                                .withText("Start a PercentLayout")
+                )
+//                .withTargetView(
+//                        new Coachmark.TargetView(findViewById(R.id.ratioLayoutButton))
+//                                .fromDirection(Coachmark.TargetView.Direction.East)
+//                                .withText("Start a RatioLayout")
+//                )
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
+                                .fromDirection(Coachmark.TargetView.Direction.North)
+                                .withText("North")
+                )
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
+                                .fromDirection(Coachmark.TargetView.Direction.South)
+                                .withText("South")
+                )
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
+                                .fromDirection(Coachmark.TargetView.Direction.East)
+                                .withText("East")
+                )
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
+                                .fromDirection(Coachmark.TargetView.Direction.West)
+                                .withText("West")
+                )
+                .show()
+        ;
+
     }
 
 }

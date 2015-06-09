@@ -15,13 +15,13 @@ import flipagram.android.widgets.R;
 
 public class TriangleView extends View {
 
-    private final static int POSITION_NORTH  = 0x1;
-    private final static int POSITION_EAST   = 0x2;
-    private final static int POSITION_SOUTH  = 0x4;
-    private final static int POSITION_WEST   = 0x8;
+    public final static int POSITION_NORTH  = 0x1;
+    public final static int POSITION_EAST   = 0x2;
+    public final static int POSITION_SOUTH  = 0x4;
+    public final static int POSITION_WEST   = 0x8;
 
     private final Paint paint = new Paint();
-    private final int direction;
+    private int direction;
     private final Path triangle = new Path();
     private final Point[] points = new Point[3];
 
@@ -47,6 +47,23 @@ public class TriangleView extends View {
         paint.setColor(a.getColor(R.styleable.TriangleView_triangleFillColor, Color.TRANSPARENT));
         direction = a.getInt(R.styleable.TriangleView_triangleDirection,POSITION_NORTH);
         a.recycle();
+    }
+
+    public void setDirection(int direction){
+        if (
+                direction!=POSITION_NORTH &&
+                direction!=POSITION_SOUTH &&
+                direction!=POSITION_EAST &&
+                direction!=POSITION_WEST
+        ){
+            throw new IllegalArgumentException("Invalid direction");
+        }
+
+        this.direction = direction;
+    }
+
+    public void setTriangleFillColor(int color){
+        paint.setColor(color);
     }
 
     @Override
