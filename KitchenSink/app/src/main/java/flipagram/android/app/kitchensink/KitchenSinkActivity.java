@@ -72,11 +72,11 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                 .fromDirection(Coachmark.TargetView.Direction.South)
                                 .withText("Start a PercentLayout")
                 )
-//                .withTargetView(
-//                        new Coachmark.TargetView(findViewById(R.id.ratioLayoutButton))
-//                                .fromDirection(Coachmark.TargetView.Direction.East)
-//                                .withText("Start a RatioLayout")
-//                )
+                .withTargetView(
+                        new Coachmark.TargetView(findViewById(R.id.ratioLayoutButton))
+                                .fromDirection(Coachmark.TargetView.Direction.East)
+                                .withText("Start a RatioLayout")
+                )
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .fromDirection(Coachmark.TargetView.Direction.North)

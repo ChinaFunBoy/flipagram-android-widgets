@@ -16,7 +16,7 @@ import flipagram.android.widgets.R;
 public class CoachTextView extends TextView {
 
     private final Paint paint = new Paint();
-    private final float rectRadius;
+    private float rectRadius;
 
     public CoachTextView(Context context) {
         this(context, null);
@@ -59,4 +59,12 @@ public class CoachTextView extends TextView {
         super.onDraw(canvas);
     }
     private final RectF drawRect = new RectF();
+
+    public void setCoachFillColor(int color){
+        paint.setColor(color);
+    }
+
+    public void setCoachRadius(float dimension){
+        rectRadius = dimension;
+    }
 }

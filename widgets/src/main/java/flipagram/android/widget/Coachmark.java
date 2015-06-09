@@ -3,6 +3,7 @@ package flipagram.android.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -125,6 +126,16 @@ public class Coachmark {
                 ));
                 target.triangle.setTriangleFillColor(backgroundColor);
                 coachmarks.addView(target.triangle);
+
+                target.textView.setLayoutParams(new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+                target.textView.setPadding((int)dp(10),(int)dp(10),(int)dp(10),(int)dp(10));
+                target.textView.setText(target.text);
+                target.textView.setCoachRadius(dp(5));
+                target.textView.setCoachFillColor(backgroundColor);
+                coachmarks.addView(target.textView);
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -163,28 +174,57 @@ public class Coachmark {
             } else {
                 activityContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
+            Point triMidBase = new Point();
             for(TargetView target : targetViews){
                 switch(target.direction){
                     case North:
                         target.triangle.setDirection(TriangleView.POSITION_SOUTH);
-                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2);
-                        target.triangle.setTranslationY(target.view.getTop() - target.triangle.getHeight());
+                        triMidBase.set(
+                                target.view.getLeft()+target.view.getWidth()/2,
+                                target.view.getTop() - target.triangle.getHeight()
+                        );
+                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
+                        target.triangle.setTranslationY(triMidBase.y);
+
+                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth()/2);
+                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight());
                         break;
                     case South:
                         target.triangle.setDirection(TriangleView.POSITION_NORTH);
-                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2);
-                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight());
+                        triMidBase.set(
+                                target.view.getLeft()+target.view.getWidth()/2,
+                                target.view.getTop()+target.view.getHeight()+target.triangle.getHeight()
+                        );
+                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
+                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight());
+
+                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth()/2);
+                        target.textView.setTranslationY(triMidBase.y);
                         break;
                     case East:
                         target.triangle.setDirection(TriangleView.POSITION_WEST);
-                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth());
-                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2);
+                        triMidBase.set(
+                                target.view.getLeft()+target.view.getWidth()+target.triangle.getWidth(),
+                                target.view.getTop()+target.view.getHeight()/2
+                        );
+                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth());
+                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);
+
+                        target.textView.setTranslationX(triMidBase.x);
+                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight()/2);
                         break;
                     default:
                     case West:
                         target.triangle.setDirection(TriangleView.POSITION_EAST);
-                        target.triangle.setTranslationX(target.view.getLeft()-target.triangle.getWidth());
-                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2);
+                        triMidBase.set(
+                                target.view.getLeft()-target.triangle.getWidth(),
+                                target.view.getTop()+target.view.getHeight()/2
+                        );
+                        target.triangle.setTranslationX(triMidBase.x);
+                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);
+
+                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth());
+                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight()/2);
                         break;
                 }
             }
