@@ -10,7 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +110,7 @@ public class Coachmark {
             }
             activityContent.getViewTreeObserver().addOnGlobalLayoutListener(positionCoachmarks);
 
-            final RelativeLayout coachmarks = new RelativeLayout(activity);
+            final FrameLayout coachmarks = new FrameLayout(activity);
             coachmarks.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -119,14 +119,14 @@ public class Coachmark {
                 }
             });
             for(TargetView target : targetViews){
-                target.triangle.setLayoutParams(new RelativeLayout.LayoutParams(
+                target.triangle.setLayoutParams(new FrameLayout.LayoutParams(
                         getTriangleHorizontalSize(target),
                         getTriangleVerticalSize(target)
                 ));
                 target.triangle.setTriangleFillColor(backgroundColor);
                 coachmarks.addView(target.triangle);
             }
-            activity.addContentView(coachmarks,new RelativeLayout.LayoutParams(
+            activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
         }
@@ -164,32 +164,29 @@ public class Coachmark {
                 activityContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
             for(TargetView target : targetViews){
-                RelativeLayout.LayoutParams triangleLp = (RelativeLayout.LayoutParams) target.triangle.getLayoutParams();
-                int triangleLeft,triangleTop;
                 switch(target.direction){
                     case North:
                         target.triangle.setDirection(TriangleView.POSITION_SOUTH);
-                        triangleLeft = target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2;
-                        triangleTop  = target.view.getTop()-target.triangle.getHeight();
+                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2);
+                        target.triangle.setTranslationY(target.view.getTop() - target.triangle.getHeight());
                         break;
                     case South:
                         target.triangle.setDirection(TriangleView.POSITION_NORTH);
-                        triangleLeft = target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2;
-                        triangleTop  = target.view.getTop()+target.view.getHeight();
+                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth()/2-target.triangle.getWidth()/2);
+                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight());
                         break;
                     case East:
                         target.triangle.setDirection(TriangleView.POSITION_WEST);
-                        triangleLeft = target.view.getLeft()+target.view.getWidth();
-                        triangleTop  = target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2;
+                        target.triangle.setTranslationX(target.view.getLeft()+target.view.getWidth());
+                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2);
                         break;
                     default:
                     case West:
                         target.triangle.setDirection(TriangleView.POSITION_EAST);
-                        triangleLeft = target.view.getLeft()-target.triangle.getWidth();
-                        triangleTop  = target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2;
+                        target.triangle.setTranslationX(target.view.getLeft()-target.triangle.getWidth());
+                        target.triangle.setTranslationY(target.view.getTop()+target.view.getHeight()/2-target.triangle.getHeight()/2);
                         break;
                 }
-                triangleLp.setMargins(triangleLeft, triangleTop, 0, 0);
             }
         }
     };
