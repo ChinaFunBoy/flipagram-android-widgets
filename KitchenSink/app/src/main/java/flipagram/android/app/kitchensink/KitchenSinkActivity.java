@@ -72,17 +72,17 @@ public class KitchenSinkActivity extends ActionBarActivity {
         int textColor = getResources().getColor(android.R.color.white);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .removeKey()
-                .withToolBar((Toolbar)findViewById(R.id.toolbar))
+                .withToolBar((Toolbar) findViewById(R.id.toolbar))
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
                                 .fromDirection(Coachmark.TargetView.Direction.South)
                                 .withText("Start a PercentLayout")
                 )
-                .withTargetView(
-                        new Coachmark.TargetView(findViewById(R.id.ratioLayoutButton))
-                                .fromDirection(Coachmark.TargetView.Direction.East)
-                                .withText("Start a RatioLayout")
-                )
+//                .withTargetView(
+//                        new Coachmark.TargetView(findViewById(R.id.menu_item_next))
+//                                .fromDirection(Coachmark.TargetView.Direction.South)
+//                                .withText("Next Text")
+//                )
                 .withTargetView(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
                                 .fromDirection(Coachmark.TargetView.Direction.North)
@@ -105,9 +105,12 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                 .fromDirection(Coachmark.TargetView.Direction.West)
                                 .withText("West")
                 )
-                .show()
-        ;
-
+                .show();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.kitchen_sink, menu);
+        return true;
+    }
 }

@@ -27,36 +27,40 @@ public class Coachmark {
     private final Activity activity;
     private final View activityContent;
     private final String key;
-    private final List<TargetView> targetViews = new ArrayList<TargetView>();
+    private final List<Target> targets = new ArrayList<Target>();
     private final int backgroundColor;
     private final int textColor;
     private Toolbar toolbar = null;
 
-    public static class TargetView {
-        private final View view;
-        private Direction direction;
-        private String text;
-
-        private final TriangleView triangle;
-        private final CoachTextView textView;
-
-        private TargetView(){
-            throw new IllegalArgumentException("View can't be null");
-        }
-
+    public abstract static class Target{
         public enum Direction {North, South, East, West}
-        public TargetView(View view){
-            this.view = view;
-            this.triangle = new TriangleView(view.getContext());
-            this.textView = new CoachTextView(view.getContext());
+
+        protected Direction direction;
+        protected String text;
+
+        protected final TriangleView triangle;
+        protected final CoachTextView textView;
+
+        protected Target(Context context){
+            this.triangle = new TriangleView(context);
+            this.textView = new CoachTextView(context);
         }
-        public TargetView fromDirection(Direction direction){
+        public Target fromDirection(Direction direction){
             this.direction = direction;
             return this;
         }
-        public TargetView withText(String text){
+        public Target withText(String text){
             this.text = text;
             return this;
+        }
+    }
+
+    public static class TargetView extends Target {
+        private final View view;
+
+        public TargetView(View view){
+            super(view.getContext());
+            this.view = view;
         }
     }
 
@@ -74,8 +78,8 @@ public class Coachmark {
         this.displayMetrics = activity.getResources().getDisplayMetrics();
     }
 
-    public Coachmark withTargetView(TargetView targetView){
-        targetViews.add(targetView);
+    public Coachmark withTargetView(Target target){
+        targets.add(target);
         return this;
     }
 
@@ -128,7 +132,7 @@ public class Coachmark {
                     return false;
                 }
             });
-            for(TargetView target : targetViews){
+            for(Target target : targets){
                 target.triangle.setLayoutParams(new FrameLayout.LayoutParams(
                         getTriangleHorizontalSize(target),
                         getTriangleVerticalSize(target)
@@ -151,7 +155,7 @@ public class Coachmark {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
         }
-        private int getTriangleHorizontalSize(TargetView target){
+        private int getTriangleHorizontalSize(Target target){
             switch(target.direction){
                 case East:
                 case West:
@@ -160,7 +164,7 @@ public class Coachmark {
                     return (int)dp(TRIANGLE_BASE);
             }
         }
-        private int getTriangleVerticalSize(TargetView target){
+        private int getTriangleVerticalSize(Target target){
             switch(target.direction){
                 case East:
                 case West:
@@ -192,57 +196,60 @@ public class Coachmark {
                 offsetY += toolbar.getHeight();
             }
 
-            for(TargetView target : targetViews){
-                switch(target.direction){
-                    case North:
-                        target.triangle.setDirection(TriangleView.POSITION_SOUTH);
-                        triMidBase.set(
-                                offsetX+target.view.getLeft()+target.view.getWidth()/2,
-                                offsetY+target.view.getTop() - target.triangle.getHeight()
-                        );
-                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
-                        target.triangle.setTranslationY(triMidBase.y);
+            for(Target t : targets) {
+                if (t instanceof TargetView) {
+                    TargetView target = TargetView.class.cast(t);
+                    switch (target.direction) {
+                        case North:
+                            target.triangle.setDirection(TriangleView.POSITION_SOUTH);
+                            triMidBase.set(
+                                    offsetX + target.view.getLeft() + target.view.getWidth() / 2,
+                                    offsetY + target.view.getTop() - target.triangle.getHeight()
+                            );
+                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
+                            target.triangle.setTranslationY(triMidBase.y);
 
-                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth()/2);
-                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight());
-                        break;
-                    case South:
-                        target.triangle.setDirection(TriangleView.POSITION_NORTH);
-                        triMidBase.set(
-                                offsetX+target.view.getLeft()+target.view.getWidth()/2,
-                                offsetY+target.view.getTop()+target.view.getHeight()+target.triangle.getHeight()
-                        );
-                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth()/2);
-                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight());
+                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
+                            break;
+                        case South:
+                            target.triangle.setDirection(TriangleView.POSITION_NORTH);
+                            triMidBase.set(
+                                    offsetX + target.view.getLeft() + target.view.getWidth() / 2,
+                                    offsetY + target.view.getTop() + target.view.getHeight() + target.triangle.getHeight()
+                            );
+                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
+                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight());
 
-                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth()/2);
-                        target.textView.setTranslationY(triMidBase.y);
-                        break;
-                    case East:
-                        target.triangle.setDirection(TriangleView.POSITION_WEST);
-                        triMidBase.set(
-                                offsetX+target.view.getLeft()+target.view.getWidth()+target.triangle.getWidth(),
-                                offsetY+target.view.getTop()+target.view.getHeight()/2
-                        );
-                        target.triangle.setTranslationX(triMidBase.x-target.triangle.getWidth());
-                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);
+                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                            target.textView.setTranslationY(triMidBase.y);
+                            break;
+                        case East:
+                            target.triangle.setDirection(TriangleView.POSITION_WEST);
+                            triMidBase.set(
+                                    offsetX + target.view.getLeft() + target.view.getWidth() + target.triangle.getWidth(),
+                                    offsetY + target.view.getTop() + target.view.getHeight() / 2
+                            );
+                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth());
+                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
 
-                        target.textView.setTranslationX(triMidBase.x);
-                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight()/2);
-                        break;
-                    default:
-                    case West:
-                        target.triangle.setDirection(TriangleView.POSITION_EAST);
-                        triMidBase.set(
-                                offsetX+target.view.getLeft()-target.triangle.getWidth(),
-                                offsetY+target.view.getTop()+target.view.getHeight()/2
-                        );
-                        target.triangle.setTranslationX(triMidBase.x);
-                        target.triangle.setTranslationY(triMidBase.y-target.triangle.getHeight()/2);
+                            target.textView.setTranslationX(triMidBase.x);
+                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+                            break;
+                        default:
+                        case West:
+                            target.triangle.setDirection(TriangleView.POSITION_EAST);
+                            triMidBase.set(
+                                    offsetX + target.view.getLeft() - target.triangle.getWidth(),
+                                    offsetY + target.view.getTop() + target.view.getHeight() / 2
+                            );
+                            target.triangle.setTranslationX(triMidBase.x);
+                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
 
-                        target.textView.setTranslationX(triMidBase.x-target.textView.getWidth());
-                        target.textView.setTranslationY(triMidBase.y-target.textView.getHeight()/2);
-                        break;
+                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
+                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+                            break;
+                    }
                 }
             }
         }
