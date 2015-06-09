@@ -30,23 +30,47 @@ public class Coachmark {
     private final List<Target> targets = new ArrayList<Target>();
     private final int backgroundColor;
     private final int textColor;
-    private Toolbar toolbar = null;
+    private final int actionBarHeight;
+    private boolean showCoachmarks = true;
+    private boolean hasActionBar = true;
+
 
     public abstract static class Target{
         public enum Direction {North, South, East, West}
 
-        protected Direction direction;
+        protected Direction from;
+        protected Direction skew;
+        protected float skewPercent;
         protected String text;
 
         protected final TriangleView triangle;
         protected final CoachTextView textView;
 
+        public abstract View getView();
+
+        /**
+         * It's up to the specific Target to decide how far it should skew to the south given the
+         * actionBarHeight. Normally this is either 0 or actionBarHeight. This is because some
+         * Views are expressed in coordinates that are relative to the bottom of the notification
+         * bar and some are expressed in coordinates relative to the bottom of the action bar.
+         * This probably isn't the best way of handling this particular Android wrinkle, but it
+         * works for now.
+         * @param actionBarHeight
+         * @return
+         */
+        public abstract int getOffsetGivenActionBarHeight(int actionBarHeight);
+
         protected Target(Context context){
             this.triangle = new TriangleView(context);
             this.textView = new CoachTextView(context);
         }
-        public Target fromDirection(Direction direction){
-            this.direction = direction;
+        public Target from(Direction direction){
+            this.from = direction;
+            return this;
+        }
+        public Target skew(Direction skew, float percent){
+            this.skew = skew;
+            this.skewPercent = percent;
             return this;
         }
         public Target withText(String text){
@@ -62,6 +86,37 @@ public class Coachmark {
             super(view.getContext());
             this.view = view;
         }
+
+        public View getView(){
+            return this.view;
+        }
+
+        public int getOffsetGivenActionBarHeight(int actionBarHeight){
+            return actionBarHeight;
+        }
+    }
+
+    /**
+     * Android has a multitude of ways of working with the thing at the top of the screen called
+     * the ActionBar. One of them is a Toolbar acting as an ActionBar. This Target knows how to
+     * deal with that particular circumstance. Android. Sigh.
+     */
+    public static class TargetToolbarActionBar extends Target {
+        private final Toolbar toolbar;
+
+        public TargetToolbarActionBar(Toolbar toolbar){
+            super(toolbar.getContext());
+            this.toolbar = toolbar;
+            this.from = Direction.South;
+        }
+
+        public View getView(){
+            return toolbar;
+        }
+
+        public int getOffsetGivenActionBarHeight(int actionBarHeight){
+            return 0;
+        }
     }
 
     private Coachmark(){
@@ -76,53 +131,53 @@ public class Coachmark {
         this.settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         this.activityContent = activity.findViewById(android.R.id.content);
         this.displayMetrics = activity.getResources().getDisplayMetrics();
+
+        TypedValue tv = new TypedValue();
+        actionBarHeight = activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)?
+                TypedValue.complexToDimensionPixelSize(tv.data, displayMetrics):
+                0;
+
+        showCoachmarks = !settings.getBoolean(key,false); // Show them if we have not
+        if (showCoachmarks){
+            // Don't show them again
+            settings.edit().putBoolean(key,true).commit();
+        }
     }
 
-    public Coachmark withTargetView(Target target){
+    public Coachmark withTarget(Target target){
         targets.add(target);
         return this;
     }
 
-    public Coachmark removeKey(){
-        settings.edit().remove(key).commit();
+    public Coachmark force(){
+        showCoachmarks = true;
         return this;
     }
 
-    public Coachmark withToolBar(Toolbar toolbar) {
-        this.toolbar = toolbar;
+    public Coachmark hasActionBar(boolean hasActionBar) {
+        this.hasActionBar = hasActionBar;
         return this;
     }
 
     /**
-     * Show the coachmarks to the user
+     * Show the coachmarks attached to a View
      * @return true if the coachmarks were shown. False otherwise.
      */
-    public boolean show(){
-        SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean alreadySeen = settings.getBoolean(key,false);
-        if (alreadySeen) {
-            // Not showing, the user has already seen it.
-            return false;
+    public Coachmark showTargetViews(){
+        if (showCoachmarks) {
+            addGlobalLayoutListener(activityContent, createCoachmarks);
         }
-
-        activityContent.getViewTreeObserver().addOnGlobalLayoutListener(drawCoachmarks);
-
-        // Don't show them again
-        settings.edit().putBoolean(key,true).commit();
-        return true;
+        return this;
     }
 
-    private final ViewTreeObserver.OnGlobalLayoutListener drawCoachmarks = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @SuppressWarnings("deprecation")
+    /**
+     * Create all coachmarks (TriangleView and CoachTextView). Positioning happens later.
+     */
+    private final ViewTreeObserver.OnGlobalLayoutListener createCoachmarks = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            // Only once
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                activityContent.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            } else {
-                activityContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-            activityContent.getViewTreeObserver().addOnGlobalLayoutListener(positionCoachmarks);
+            removeGlobalLayoutListener(activityContent, this);
+            addGlobalLayoutListener(activityContent, positionViews);
 
             final FrameLayout coachmarks = new FrameLayout(activity);
             coachmarks.setOnTouchListener(new View.OnTouchListener() {
@@ -156,7 +211,7 @@ public class Coachmark {
                     ViewGroup.LayoutParams.MATCH_PARENT));
         }
         private int getTriangleHorizontalSize(Target target){
-            switch(target.direction){
+            switch(target.from){
                 case East:
                 case West:
                     return (int)dp(TRIANGLE_CENTROID);
@@ -165,7 +220,7 @@ public class Coachmark {
             }
         }
         private int getTriangleVerticalSize(Target target){
-            switch(target.direction){
+            switch(target.from){
                 case East:
                 case West:
                     return (int)dp(TRIANGLE_BASE);
@@ -178,80 +233,84 @@ public class Coachmark {
         }
     };
 
-    private final ViewTreeObserver.OnGlobalLayoutListener positionCoachmarks = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @SuppressWarnings("deprecation")
+    ViewTreeObserver.OnGlobalLayoutListener positionViews = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            // Only once
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                activityContent.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            } else {
-                activityContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-            Point triMidBase = new Point();
-            int offsetX = 0;
-            int offsetY = 0;
-
-            if (toolbar!=null){
-                offsetY += toolbar.getHeight();
-            }
-
-            for(Target t : targets) {
-                if (t instanceof TargetView) {
-                    TargetView target = TargetView.class.cast(t);
-                    switch (target.direction) {
-                        case North:
-                            target.triangle.setDirection(TriangleView.POSITION_SOUTH);
-                            triMidBase.set(
-                                    offsetX + target.view.getLeft() + target.view.getWidth() / 2,
-                                    offsetY + target.view.getTop() - target.triangle.getHeight()
-                            );
-                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
-                            target.triangle.setTranslationY(triMidBase.y);
-
-                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
-                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
-                            break;
-                        case South:
-                            target.triangle.setDirection(TriangleView.POSITION_NORTH);
-                            triMidBase.set(
-                                    offsetX + target.view.getLeft() + target.view.getWidth() / 2,
-                                    offsetY + target.view.getTop() + target.view.getHeight() + target.triangle.getHeight()
-                            );
-                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
-                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight());
-
-                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
-                            target.textView.setTranslationY(triMidBase.y);
-                            break;
-                        case East:
-                            target.triangle.setDirection(TriangleView.POSITION_WEST);
-                            triMidBase.set(
-                                    offsetX + target.view.getLeft() + target.view.getWidth() + target.triangle.getWidth(),
-                                    offsetY + target.view.getTop() + target.view.getHeight() / 2
-                            );
-                            target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth());
-                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
-
-                            target.textView.setTranslationX(triMidBase.x);
-                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
-                            break;
-                        default:
-                        case West:
-                            target.triangle.setDirection(TriangleView.POSITION_EAST);
-                            triMidBase.set(
-                                    offsetX + target.view.getLeft() - target.triangle.getWidth(),
-                                    offsetY + target.view.getTop() + target.view.getHeight() / 2
-                            );
-                            target.triangle.setTranslationX(triMidBase.x);
-                            target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
-
-                            target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
-                            target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
-                            break;
-                    }
-                }
+            removeGlobalLayoutListener(activityContent, this);
+            for(Target target : targets) {
+                positionTarget(target,target.getView());
             }
         }
     };
+
+    private void positionTarget(Target target, View view){
+        Point triMidBase = new Point();
+        int offsetX = 0;
+        int offsetY = target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0);
+
+        switch (target.from) {
+            case North:
+                target.triangle.setDirection(TriangleView.POSITION_SOUTH);
+                triMidBase.set(
+                        offsetX + view.getLeft() + view.getWidth() / 2,
+                        offsetY + view.getTop() - target.triangle.getHeight()
+                );
+                target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
+                target.triangle.setTranslationY(triMidBase.y);
+
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight());
+                break;
+            case South:
+                target.triangle.setDirection(TriangleView.POSITION_NORTH);
+                triMidBase.set(
+                        offsetX + view.getLeft() + view.getWidth() / 2,
+                        offsetY + view.getTop() + view.getHeight() + target.triangle.getHeight()
+                );
+                target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth() / 2);
+                target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight());
+
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth() / 2);
+                target.textView.setTranslationY(triMidBase.y);
+                break;
+            case East:
+                target.triangle.setDirection(TriangleView.POSITION_WEST);
+                triMidBase.set(
+                        offsetX + view.getLeft() + view.getWidth() + target.triangle.getWidth(),
+                        offsetY + view.getTop() + view.getHeight() / 2
+                );
+                target.triangle.setTranslationX(triMidBase.x - target.triangle.getWidth());
+                target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
+
+                target.textView.setTranslationX(triMidBase.x);
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+                break;
+            default:
+            case West:
+                target.triangle.setDirection(TriangleView.POSITION_EAST);
+                triMidBase.set(
+                        offsetX + view.getLeft() - target.triangle.getWidth(),
+                        offsetY + view.getTop() + view.getHeight() / 2
+                );
+                target.triangle.setTranslationX(triMidBase.x);
+                target.triangle.setTranslationY(triMidBase.y - target.triangle.getHeight() / 2);
+
+                target.textView.setTranslationX(triMidBase.x - target.textView.getWidth());
+                target.textView.setTranslationY(triMidBase.y - target.textView.getHeight() / 2);
+                break;
+        }
+    }
+
+    private void addGlobalLayoutListener(View onView, ViewTreeObserver.OnGlobalLayoutListener listener){
+        onView.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void removeGlobalLayoutListener(View onView, ViewTreeObserver.OnGlobalLayoutListener listener){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            onView.getViewTreeObserver().removeGlobalOnLayoutListener(listener);
+        } else {
+            onView.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+        }
+    }
 }

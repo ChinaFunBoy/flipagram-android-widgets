@@ -20,7 +20,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -71,41 +70,40 @@ public class KitchenSinkActivity extends ActionBarActivity {
         int backgroundColor = getResources().getColor(android.R.color.holo_orange_dark);
         int textColor = getResources().getColor(android.R.color.white);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
-                .removeKey()
-                .withToolBar((Toolbar) findViewById(R.id.toolbar))
-                .withTargetView(
+                .force()
+                .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
-                                .fromDirection(Coachmark.TargetView.Direction.South)
+                                .from(Coachmark.TargetView.Direction.South)
                                 .withText("Start a PercentLayout")
                 )
-//                .withTargetView(
-//                        new Coachmark.TargetView(findViewById(R.id.menu_item_next))
-//                                .fromDirection(Coachmark.TargetView.Direction.South)
-//                                .withText("Next Text")
-//                )
-                .withTargetView(
+                .withTarget(
+                        new Coachmark.TargetToolbarActionBar(toolbar)
+                                .skew(Coachmark.Target.Direction.East,0.9f)
+                                .withText("Next Text")
+                )
+                .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .fromDirection(Coachmark.TargetView.Direction.North)
+                                .from(Coachmark.TargetView.Direction.North)
                                 .withText("North")
                 )
-                .withTargetView(
+                .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .fromDirection(Coachmark.TargetView.Direction.South)
+                                .from(Coachmark.TargetView.Direction.South)
                                 .withText("This is the southern most tip\n" +
                                         "of the cirlce. It's a nice circle.\n" +
                                         "It does nothing but be a circle.")
                 )
-                .withTargetView(
+                .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .fromDirection(Coachmark.TargetView.Direction.East)
+                                .from(Coachmark.TargetView.Direction.East)
                                 .withText("East")
                 )
-                .withTargetView(
+                .withTarget(
                         new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .fromDirection(Coachmark.TargetView.Direction.West)
+                                .from(Coachmark.TargetView.Direction.West)
                                 .withText("West")
                 )
-                .show();
+                .showTargetViews();
     }
 
     @Override
