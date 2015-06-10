@@ -67,6 +67,7 @@ public class Coachmark {
 
         private CircleTextView circle;
         private int circleBorderWidthDp;
+        private float circlePercent = 1.0f;
 
         public View getView(){
             return this.view;
@@ -99,10 +100,11 @@ public class Coachmark {
             this.text = view.getContext().getString(id);
             return this;
         }
-        public Target withBullseye(int borderColor, int borderWidthDp) {
+        public Target withBullseye(float percent, int borderColor, int borderWidthDp) {
             if (circle == null){
                 circle = new CircleTextView(view.getContext());
                 circle.setBorderColor(borderColor);
+                circlePercent = percent;
                 circleBorderWidthDp = borderWidthDp;
             }
             return this;
@@ -164,7 +166,7 @@ public class Coachmark {
      * Show the coachmarks attached to a View
      * @return true if the coachmarks were shown. False otherwise.
      */
-    public Coachmark showTargetViews(){
+    public Coachmark show(){
         if (showCoachmarks) {
             addGlobalLayoutListener(activityContent, createCoachmarks);
         }
@@ -210,7 +212,9 @@ public class Coachmark {
                 }
                 coachmarks.addView(target.textView);
                 if (target.circle!=null){
-                    int circleSize = Math.min(target.view.getWidth(),target.view.getHeight());
+                    int circleSize = (int) (
+                            Math.min((float)target.view.getWidth(),(float)target.view.getHeight())
+                            * target.circlePercent);
                     target.circle.setLayoutParams(new FrameLayout.LayoutParams(circleSize, circleSize));
                     target.circle.setBorderSize((int) dp(target.circleBorderWidthDp));
                     target.circle.setFillColor(backgroundColor);
@@ -332,28 +336,41 @@ public class Coachmark {
 
         // Now draw the circle based on where the triangle is now pointing
         if (target.circle!=null){
-            Point circlePoint = new Point(trianglePoint.x, trianglePoint.y);
+            Point circlePoint = new Point();
             int tHigh = target.triangle.getHeight();
             int tWide = target.triangle.getWidth();
             int cSize = target.circle.getWidth();
             int cBorderWidth2 = (int)(target.circle.getBorderSize() / 2);
+            int cDistToCenter = (Math.min(target.view.getWidth(),target.view.getHeight())-cSize)/2;
             switch (target.points){
                 case North:
+                    trianglePoint.offset(0,-cDistToCenter);
+                    textViewPoint.offset(0,-cDistToCenter);
+                    circlePoint.set(trianglePoint.x,trianglePoint.y);
                     circlePoint.offset(tWide / 2 - cSize / 2, -cSize);
                     trianglePoint.offset(0,-cBorderWidth2);
                     textViewPoint.offset(0,-cBorderWidth2);
                     break;
                 case South:
+                    trianglePoint.offset(0,cDistToCenter);
+                    textViewPoint.offset(0,cDistToCenter);
+                    circlePoint.set(trianglePoint.x,trianglePoint.y);
                     circlePoint.offset(tWide / 2 - cSize / 2, tHigh);
                     trianglePoint.offset(0,cBorderWidth2);
                     textViewPoint.offset(0,cBorderWidth2);
                     break;
                 case East:
+                    trianglePoint.offset(cDistToCenter,0);
+                    textViewPoint.offset(cDistToCenter,0);
+                    circlePoint.set(trianglePoint.x,trianglePoint.y);
                     circlePoint.offset(tWide, tHigh / 2 - cSize / 2);
                     trianglePoint.offset(cBorderWidth2,0);
                     textViewPoint.offset(cBorderWidth2,0);
                     break;
                 case West:
+                    trianglePoint.offset(-cDistToCenter,0);
+                    textViewPoint.offset(-cDistToCenter,0);
+                    circlePoint.set(trianglePoint.x,trianglePoint.y);
                     circlePoint.offset(-cSize, tHigh / 2 - cSize / 2);
                     trianglePoint.offset(-cBorderWidth2,0);
                     textViewPoint.offset(-cBorderWidth2,0);

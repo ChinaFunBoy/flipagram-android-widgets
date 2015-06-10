@@ -15,8 +15,6 @@
  */
 package flipagram.android.app.kitchensink;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -93,7 +91,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                 .withText("This is the next button.\n" +
                                         "You can press it to go to\n" +
                                         "the next screen.")
-                                .withBullseye(bullseyeBorderColor, 4)
+                                .withBullseye(0.5f,bullseyeBorderColor, 4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.circleTextView))
@@ -106,21 +104,21 @@ public class KitchenSinkActivity extends ActionBarActivity {
                         new Coachmark.Target(findViewById(R.id.restoreCoachmarks))
                                 .pointing(Coachmark.Target.Direction.South)
                                 .withText("Restore these coachmarks!")
-                                .withBullseye(bullseyeBorderColor, 4)
+                                .withBullseye(1.0f,bullseyeBorderColor, 4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.leftButton))
                                 .pointing(Coachmark.Target.Direction.West)
                                 .withText("oompa")
-                                .withBullseye(bullseyeBorderColor,4)
+                                .withBullseye(1.0f,bullseyeBorderColor,4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.rightButton))
                                 .pointing(Coachmark.Target.Direction.East)
                                 .withText("loompa")
-                                .withBullseye(bullseyeBorderColor,4)
+                                .withBullseye(1.0f,bullseyeBorderColor,4)
                 )
-                .showTargetViews();
+                .show();
     }
 
     @Override
