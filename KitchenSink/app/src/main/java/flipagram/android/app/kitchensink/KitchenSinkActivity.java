@@ -15,6 +15,8 @@
  */
 package flipagram.android.app.kitchensink;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -66,11 +68,16 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 startActivity(new Intent(KitchenSinkActivity.this,RatioLayoutActivity.class));
             }
         });
+        Button.class.cast(findViewById(R.id.restoreCoachmarks)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Coachmark.reset(KitchenSinkActivity.this,COACH_KEY);
+            }
+        });
 
         int backgroundColor = getResources().getColor(android.R.color.holo_orange_dark);
         int textColor = getResources().getColor(android.R.color.white);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
-                .force()
                 .withTextSize(16.0f)
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.percentLayoutButton))

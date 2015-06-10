@@ -2,6 +2,7 @@ package flipagram.android.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
@@ -98,7 +99,6 @@ public class Coachmark {
 
 
     public Coachmark(Activity activity, String key, int backgroundColor, int textColor){
-        TypedValue tv = new TypedValue();
         SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         this.activity = activity;
@@ -112,6 +112,25 @@ public class Coachmark {
             // Don't show them again
             settings.edit().putBoolean(key,true).apply();
         }
+    }
+
+    /**
+     * Clear this key so the coachmarks will display again
+     * @param cw ContextWrapper allowing access to the SharedPreferences
+     * @param key the key to remove
+     */
+    public static void reset(ContextWrapper cw, String key) {
+        SharedPreferences settings = cw.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        settings.edit().remove(key).apply();
+    }
+
+    /**
+     * Clear all keys so the coachmarks will display again
+     * @param cw ContextWrapper allowing access to the SharedPreferences
+     */
+    public static void reset(ContextWrapper cw) {
+        SharedPreferences settings = cw.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        settings.edit().clear().apply();
     }
 
     public Coachmark withTarget(Target target){
