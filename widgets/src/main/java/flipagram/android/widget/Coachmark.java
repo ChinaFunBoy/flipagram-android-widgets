@@ -90,6 +90,10 @@ public class Coachmark {
             this.text = text;
             return this;
         }
+        public Target withText(int id){
+            this.text = view.getContext().getString(id);
+            return this;
+        }
     }
 
 

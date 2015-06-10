@@ -81,7 +81,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.nextButton))
                                 .pointing(Coachmark.Target.Direction.South)
-                                .withText("Go to the next one!")
+                                .withText(R.string.go_to_the_next_one)
                 )
                 .withTarget(
                         new Coachmark.Target(toolbar)
