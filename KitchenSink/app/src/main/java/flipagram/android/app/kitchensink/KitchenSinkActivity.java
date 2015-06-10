@@ -81,11 +81,13 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.nextButton))
                                 .pointing(Coachmark.Target.Direction.South)
+                                .withBounce()
                                 .withText(R.string.go_to_the_next_one)
                 )
                 .withTarget(
                         new Coachmark.Target(toolbar)
                                 .pointing(Coachmark.Target.Direction.North)
+                                .withBounce()
                                 .skewTextToward(Coachmark.Target.Direction.East, 0.75f)
                                 .skewTriangleToward(Coachmark.Target.Direction.East, 1f)
                                 .withText("This is the next button.\n" +
@@ -96,6 +98,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.Target.Direction.South)
+                                .withBounce()
                                 .withText("This is the northern most tip\n" +
                                         "of the cirlce. It's a nice circle.\n" +
                                         "It does nothing but be a circle.")
@@ -103,18 +106,21 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.restoreCoachmarks))
                                 .pointing(Coachmark.Target.Direction.South)
+                                .withBounce()
                                 .withText("Restore these coachmarks!")
                                 .withBullseye(1.0f,bullseyeBorderColor, 4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.leftButton))
                                 .pointing(Coachmark.Target.Direction.West)
+                                .withBounce()
                                 .withText("oompa")
                                 .withBullseye(1.0f,bullseyeBorderColor,4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.rightButton))
                                 .pointing(Coachmark.Target.Direction.East)
+                                .withBounce()
                                 .withText("loompa")
                                 .withBullseye(1.0f,bullseyeBorderColor,4)
                 )

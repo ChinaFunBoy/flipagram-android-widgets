@@ -13,10 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import flipagram.android.widgets.R;
 
 public class Coachmark {
     public static final String PREFS_NAME = "Coachmark";
@@ -39,16 +43,18 @@ public class Coachmark {
         static final int LONGITUDINAL= 2;
 
         public enum Direction {
-            North(LATITUDINAL,-1),
-            South(LATITUDINAL,1),
-            East(LONGITUDINAL,1),
-            West(LONGITUDINAL,-1),
+            North(LATITUDINAL,-1,R.anim.coachmark_north_bounce),
+            South(LATITUDINAL,1,R.anim.coachmark_south_bounce),
+            East(LONGITUDINAL,1,R.anim.coachmark_east_bounce),
+            West(LONGITUDINAL,-1,R.anim.coachmark_west_bounce),
             ;
             int vector;
             int grows;
-            Direction(int vector, int grows){
+            int animationId;
+            Direction(int vector, int grows, int animationId){
                 this.vector = vector;
                 this.grows = grows;
+                this.animationId = animationId;
             }
         }
 
@@ -64,6 +70,8 @@ public class Coachmark {
 
         private final TriangleView triangle;
         private final CoachTextView textView;
+
+        private boolean bounce = false;
 
         private CircleTextView circle;
         private int circleBorderWidthDp;
@@ -98,6 +106,10 @@ public class Coachmark {
         }
         public Target withText(int id){
             this.text = view.getContext().getString(id);
+            return this;
+        }
+        public Target withBounce(){
+            bounce = true;
             return this;
         }
         public Target withBullseye(float percent, int borderColor, int borderWidthDp) {
@@ -255,7 +267,7 @@ public class Coachmark {
         }
     };
 
-    private void positionTarget(Target target){
+    private void positionTarget(final Target target){
 
         Point viewPoint = getAbsoluteXY(target.view);
 
@@ -383,6 +395,12 @@ public class Coachmark {
         target.textView.setTranslationY(textViewPoint.y);
         target.triangle.setTranslationX(trianglePoint.x);
         target.triangle.setTranslationY(trianglePoint.y);
+
+        if (target.bounce) {
+            Animation anim = AnimationUtils.loadAnimation(activity, target.points.animationId);
+            target.triangle.startAnimation(anim);
+            target.textView.startAnimation(anim);
+        }
     }
 
     private Point getAbsoluteXY(View view){
