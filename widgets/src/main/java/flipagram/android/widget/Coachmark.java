@@ -75,12 +75,12 @@ public class Coachmark {
             this.points = direction;
             return this;
         }
-        public Target skewTextDirection(Direction direction, float percent){
+        public Target skewTextToward(Direction direction, float percent){
             this.skewText = direction;
             this.skewTextPercent = percent;
             return this;
         }
-        public Target skewTriangleDirection(Direction direction, float percent){
+        public Target skewTriangleToward(Direction direction, float percent){
             this.skewTriangle = direction;
             this.skewTrianglePercent = percent;
             return this;

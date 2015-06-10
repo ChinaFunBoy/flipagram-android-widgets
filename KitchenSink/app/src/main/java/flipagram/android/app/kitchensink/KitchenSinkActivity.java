@@ -74,7 +74,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.percentLayoutButton))
                                 .pointing(Coachmark.Target.Direction.North)
-                                .skewTriangleDirection(Coachmark.Target.Direction.West, 0.5f)
+                                .skewTriangleToward(Coachmark.Target.Direction.West, 0.5f)
                                 .withText("Start a PercentLayout")
                 )
                 .withTarget(
@@ -85,8 +85,8 @@ public class KitchenSinkActivity extends ActionBarActivity {
                 .withTarget(
                         new Coachmark.Target(toolbar)
                                 .pointing(Coachmark.Target.Direction.North)
-                                .skewTextDirection(Coachmark.Target.Direction.East, 0.75f)
-                                .skewTriangleDirection(Coachmark.Target.Direction.East, 1f)
+                                .skewTextToward(Coachmark.Target.Direction.East, 0.75f)
+                                .skewTriangleToward(Coachmark.Target.Direction.East, 1f)
                                 .withText("This is the next button.\n" +
                                         "You can press it to go to\n" +
                                         "the next screen.")
