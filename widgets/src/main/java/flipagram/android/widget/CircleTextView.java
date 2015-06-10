@@ -63,8 +63,12 @@ public class CircleTextView extends TextView {
         super.onDraw(canvas);
     }
 
-    public void setBorderStrokeWidth(float width){
+    public void setBorderSize(float width){
         borderPaint.setStrokeWidth(width);
+    }
+
+    public float getBorderSize() {
+        return borderPaint.getStrokeWidth();
     }
 
     public void setBorderColor(int color){
@@ -74,4 +78,5 @@ public class CircleTextView extends TextView {
     public void setFillColor(int color){
         fillPaint.setColor(color);
     }
+
 }

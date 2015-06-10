@@ -15,7 +15,6 @@ import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -213,7 +212,7 @@ public class Coachmark {
                 if (target.circle!=null){
                     int circleSize = Math.min(target.view.getWidth(),target.view.getHeight());
                     target.circle.setLayoutParams(new FrameLayout.LayoutParams(circleSize, circleSize));
-                    target.circle.setBorderStrokeWidth((int) dp(target.circleBorderWidthDp));
+                    target.circle.setBorderSize((int) dp(target.circleBorderWidthDp));
                     target.circle.setFillColor(backgroundColor);
                     coachmarks.addView(target.circle,0);
                 }
@@ -330,48 +329,43 @@ public class Coachmark {
         Point fix = getFixDimensions(target, textViewPoint);
         textViewPoint.offset(fix.x,fix.y);
         trianglePoint.offset(fix.x,fix.y);
-        target.textView.setTranslationX(textViewPoint.x);
-        target.textView.setTranslationY(textViewPoint.y);
-        target.triangle.setTranslationX(trianglePoint.x);
-        target.triangle.setTranslationY(trianglePoint.y);
 
         // Now draw the circle based on where the triangle is now pointing
         if (target.circle!=null){
-            Point circlePoint = new Point(
-                    (int)target.triangle.getTranslationX(),
-                    (int)target.triangle.getTranslationY());
+            Point circlePoint = new Point(trianglePoint.x, trianglePoint.y);
             int tHigh = target.triangle.getHeight();
             int tWide = target.triangle.getWidth();
             int cSize = target.circle.getWidth();
+            int cBorderWidth2 = (int)(target.circle.getBorderSize() / 2);
             switch (target.points){
                 case North:
-                    circlePoint.offset(
-                            tWide / 2 - cSize / 2,
-                            -cSize
-                    );
+                    circlePoint.offset(tWide / 2 - cSize / 2, -cSize);
+                    trianglePoint.offset(0,-cBorderWidth2);
+                    textViewPoint.offset(0,-cBorderWidth2);
                     break;
                 case South:
-                    circlePoint.offset(
-                            tWide / 2 - cSize / 2,
-                            tHigh
-                    );
+                    circlePoint.offset(tWide / 2 - cSize / 2, tHigh);
+                    trianglePoint.offset(0,cBorderWidth2);
+                    textViewPoint.offset(0,cBorderWidth2);
                     break;
                 case East:
-                    circlePoint.offset(
-                            tWide,
-                            tHigh / 2 - cSize / 2
-                    );
+                    circlePoint.offset(tWide, tHigh / 2 - cSize / 2);
+                    trianglePoint.offset(cBorderWidth2,0);
+                    textViewPoint.offset(cBorderWidth2,0);
                     break;
                 case West:
-                    circlePoint.offset(
-                            -cSize,
-                            tHigh / 2 - cSize / 2
-                    );
+                    circlePoint.offset(-cSize, tHigh / 2 - cSize / 2);
+                    trianglePoint.offset(-cBorderWidth2,0);
+                    textViewPoint.offset(-cBorderWidth2,0);
                     break;
             }
             target.circle.setTranslationX(circlePoint.x);
             target.circle.setTranslationY(circlePoint.y);
         }
+        target.textView.setTranslationX(textViewPoint.x);
+        target.textView.setTranslationY(textViewPoint.y);
+        target.triangle.setTranslationX(trianglePoint.x);
+        target.triangle.setTranslationY(trianglePoint.y);
     }
 
     private Point getAbsoluteXY(View view){
