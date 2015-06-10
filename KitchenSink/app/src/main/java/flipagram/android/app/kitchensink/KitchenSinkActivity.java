@@ -72,13 +72,19 @@ public class KitchenSinkActivity extends ActionBarActivity {
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .force()
                 .withTarget(
-                        new Coachmark.TargetView(findViewById(R.id.percentLayoutButton))
-                                .pointing(Coachmark.TargetView.Direction.North)
+                        new Coachmark.Target(findViewById(R.id.percentLayoutButton))
+                                .pointing(Coachmark.Target.Direction.North)
                                 .skewTriangleDirection(Coachmark.Target.Direction.West, 0.5f)
                                 .withText("Start a PercentLayout")
                 )
                 .withTarget(
-                        new Coachmark.TargetToolbarActionBar(toolbar)
+                        new Coachmark.Target(findViewById(R.id.nextButton))
+                                .pointing(Coachmark.Target.Direction.South)
+                                .withText("Go to the next one!")
+                )
+                .withTarget(
+                        new Coachmark.Target(toolbar)
+                                .pointing(Coachmark.Target.Direction.North)
                                 .skewTextDirection(Coachmark.Target.Direction.East, 0.75f)
                                 .skewTriangleDirection(Coachmark.Target.Direction.East, 1f)
                                 .withText("This is the next button.\n" +
@@ -86,25 +92,25 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                         "the next screen.")
                 )
                 .withTarget(
-                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.TargetView.Direction.South)
+                        new Coachmark.Target(findViewById(R.id.circleTextView))
+                                .pointing(Coachmark.Target.Direction.South)
                                 .withText("Points South")
                 )
                 .withTarget(
-                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.TargetView.Direction.North)
+                        new Coachmark.Target(findViewById(R.id.circleTextView))
+                                .pointing(Coachmark.Target.Direction.North)
                                 .withText("This is the southern most tip\n" +
                                         "of the cirlce. It's a nice circle.\n" +
                                         "It does nothing but be a circle.")
                 )
                 .withTarget(
-                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.TargetView.Direction.West)
+                        new Coachmark.Target(findViewById(R.id.circleTextView))
+                                .pointing(Coachmark.Target.Direction.West)
                                 .withText("Points West")
                 )
                 .withTarget(
-                        new Coachmark.TargetView(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.TargetView.Direction.East)
+                        new Coachmark.Target(findViewById(R.id.circleTextView))
+                                .pointing(Coachmark.Target.Direction.East)
                                 .withText("Points East")
                 )
                 .showTargetViews();

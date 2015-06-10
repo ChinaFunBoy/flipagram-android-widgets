@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
-import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
@@ -30,11 +30,9 @@ public class Coachmark {
     private final List<Target> targets = new ArrayList<Target>();
     private final int backgroundColor;
     private final int textColor;
-    private final int actionBarHeight;
     private boolean showCoachmarks = true;
-    private boolean hasActionBar = true;
 
-    public abstract static class Target{
+    public static class Target {
         static final int LATITUDINAL = 1;
         static final int LONGITUDINAL= 2;
         public enum Direction {
@@ -51,35 +49,27 @@ public class Coachmark {
             }
         }
 
-        protected Direction points = Direction.North;
-        protected String text;
+        private final View view;
+        private Direction points = Direction.North;
+        private String text;
 
-        protected Direction skewText = null;
-        protected float skewTextPercent;
+        private Direction skewText = null;
+        private float skewTextPercent;
 
-        protected Direction skewTriangle = null;
-        protected float skewTrianglePercent;
+        private Direction skewTriangle = null;
+        private float skewTrianglePercent;
 
-        protected final TriangleView triangle;
-        protected final CoachTextView textView;
+        private final TriangleView triangle;
+        private final CoachTextView textView;
 
-        public abstract View getView();
+        public View getView(){
+            return this.view;
+        }
 
-        /**
-         * It's up to the specific Target to decide how far it should skew to the south given the
-         * actionBarHeight. Normally this is either 0 or actionBarHeight. This is because some
-         * Views are expressed in coordinates that are relative to the bottom of the notification
-         * bar and some are expressed in coordinates relative to the bottom of the action bar.
-         * This probably isn't the best way of handling this particular Android wrinkle, but it
-         * works for now.
-         * @param actionBarHeight the height of the action bar
-         * @return the chosen offset
-         */
-        public abstract int getOffsetGivenActionBarHeight(int actionBarHeight);
-
-        protected Target(Context context){
-            this.triangle = new TriangleView(context);
-            this.textView = new CoachTextView(context);
+        public Target(View view){
+            this.view = view;
+            this.triangle = new TriangleView(view.getContext());
+            this.textView = new CoachTextView(view.getContext());
         }
         public Target pointing(Direction direction){
             this.points = direction;
@@ -101,44 +91,6 @@ public class Coachmark {
         }
     }
 
-    public static class TargetView extends Target {
-        private final View view;
-
-        public TargetView(View view){
-            super(view.getContext());
-            this.view = view;
-        }
-
-        public View getView(){
-            return this.view;
-        }
-
-        public int getOffsetGivenActionBarHeight(int actionBarHeight){
-            return actionBarHeight;
-        }
-    }
-
-    /**
-     * Android has a multitude of ways of working with the thing at the top of the screen called
-     * the ActionBar. One of them is a Toolbar acting as an ActionBar. This Target knows how to
-     * deal with that particular circumstance. Android. Sigh.
-     */
-    public static class TargetToolbarActionBar extends Target {
-        private final Toolbar toolbar;
-
-        public TargetToolbarActionBar(Toolbar toolbar){
-            super(toolbar.getContext());
-            this.toolbar = toolbar;
-        }
-
-        public View getView(){
-            return toolbar;
-        }
-
-        public int getOffsetGivenActionBarHeight(int actionBarHeight){
-            return 0;
-        }
-    }
 
     public Coachmark(Activity activity, String key, int backgroundColor, int textColor){
         TypedValue tv = new TypedValue();
@@ -149,10 +101,6 @@ public class Coachmark {
         this.textColor = textColor;
         this.activityContent = activity.findViewById(android.R.id.content);
         this.displayMetrics = activity.getResources().getDisplayMetrics();
-
-        actionBarHeight = activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)?
-            TypedValue.complexToDimensionPixelSize(tv.data, displayMetrics):
-            0;
 
         showCoachmarks = !settings.getBoolean(key,false); // Show them if we have not
         if (showCoachmarks){
@@ -168,11 +116,6 @@ public class Coachmark {
 
     public Coachmark force(){
         showCoachmarks = true;
-        return this;
-    }
-
-    public Coachmark hasActionBar(boolean hasActionBar) {
-        this.hasActionBar = hasActionBar;
         return this;
     }
 
@@ -252,17 +195,17 @@ public class Coachmark {
         public void onGlobalLayout() {
             removeGlobalLayoutListener(activityContent, this);
             for(Target target : targets) {
-                positionTarget(target,target.getView());
+                positionTarget(target);
             }
         }
     };
 
-    private void positionTarget(Target target, View view){
+    private void positionTarget(Target target){
+
+        Point viewPoint = getAbsoluteXY(target.view);
+
         /** The point at the center of the side ajacent to the View */
-        Point textViewCenterOfAdjacentSide = new Point(
-                0,
-                target.getOffsetGivenActionBarHeight(hasActionBar?actionBarHeight:0)
-        );
+        Point textViewCenterOfAdjacentSide = new Point();
 
         /** The upper left corner of the text view. This is where it ends up */
         Point textViewPoint = new Point();
@@ -270,15 +213,15 @@ public class Coachmark {
         /** The upper left corner of the triangle. This is where it ends up */
         Point trianglePoint = new Point();
 
-        Point skewTextDimensions = getSkewTextDimensions(target,view);
+        Point skewTextDimensions = getSkewTextDimensions(target);
         Point skewTriangleDimensions = getSkewTriangleDimensions(target);
 
         switch (target.points) {
             case South:
                 target.triangle.setDirection(TriangleView.POSITION_SOUTH);
                 textViewCenterOfAdjacentSide.offset(
-                        view.getLeft() + view.getWidth() / 2,
-                        view.getTop() - target.triangle.getHeight());
+                        viewPoint.x + target.view.getWidth() / 2,
+                        viewPoint.y - target.triangle.getHeight());
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
@@ -291,8 +234,8 @@ public class Coachmark {
             case North:
                 target.triangle.setDirection(TriangleView.POSITION_NORTH);
                 textViewCenterOfAdjacentSide.offset(
-                        view.getLeft() + view.getWidth() / 2,
-                        view.getTop() + view.getHeight() + target.triangle.getHeight());
+                        viewPoint.x + target.view.getWidth() / 2,
+                        viewPoint.y + target.view.getHeight() + target.triangle.getHeight());
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
@@ -305,8 +248,8 @@ public class Coachmark {
             case West:
                 target.triangle.setDirection(TriangleView.POSITION_WEST);
                 textViewCenterOfAdjacentSide.offset(
-                        view.getLeft() + view.getWidth() + target.triangle.getWidth(),
-                        view.getTop() + view.getHeight() / 2);
+                        viewPoint.x + target.view.getWidth() + target.triangle.getWidth(),
+                        viewPoint.y + target.view.getHeight() / 2);
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x,
@@ -320,8 +263,8 @@ public class Coachmark {
             case East:
                 target.triangle.setDirection(TriangleView.POSITION_EAST);
                 textViewCenterOfAdjacentSide.offset(
-                        view.getLeft() - target.triangle.getWidth(),
-                        view.getTop() + view.getHeight() / 2);
+                        viewPoint.x - target.triangle.getWidth(),
+                        viewPoint.y + target.view.getHeight() / 2);
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth(),
@@ -341,6 +284,20 @@ public class Coachmark {
         target.triangle.setTranslationY(trianglePoint.y);
     }
 
+    private Point getAbsoluteXY(View view){
+        Point point = new Point();
+        point.offset(view.getLeft(),view.getTop());
+        ViewParent parent = view.getParent();
+        while(parent!=null && parent!=activityContent){
+            if (parent instanceof View) {
+                view = (View) parent;
+                point.offset(view.getLeft(), view.getTop());
+            }
+            parent = parent.getParent();
+        }
+        return point;
+    }
+
     private Point getFixDimensions(Target target, Point textViewPoint){
         Point fix = new Point();
         int margin = (int)dp(MARGIN);
@@ -357,16 +314,16 @@ public class Coachmark {
         return fix;
     }
 
-    private Point getSkewTextDimensions(Target target, View view){
+    private Point getSkewTextDimensions(Target target){
         Point dim = new Point();
         if (target.skewText!=null){
-            if (target.skewText !=null && target.points.vector==target.skewText.vector){
+            if (target.points.vector==target.skewText.vector){
                 throw new IllegalArgumentException("Bad skew direction");
             }
             if (target.skewText.vector==Target.LATITUDINAL) {
-                dim.set(0,target.skewText.grows * (int) ( ((float)view.getHeight()/2) * target.skewTextPercent));
+                dim.set(0,target.skewText.grows * (int) ( ((float)target.view.getHeight()/2) * target.skewTextPercent));
             } else {
-                dim.set(target.skewText.grows * (int) ( ((float)view.getWidth()/2) * target.skewTextPercent),0);
+                dim.set(target.skewText.grows * (int) ( ((float)target.view.getWidth()/2) * target.skewTextPercent),0);
             }
         }
         return dim;
@@ -376,7 +333,7 @@ public class Coachmark {
         Point dim = new Point();
         float twoRadians = dp(COACHMARK_CORNER_RADIUS * 2);
         if (target.skewTriangle!=null){
-            if (target.skewTriangle !=null && target.points.vector==target.skewTriangle.vector){
+            if (target.points.vector==target.skewTriangle.vector){
                 throw new IllegalArgumentException("Bad skew direction");
             }
             if (target.skewTriangle.vector==Target.LATITUDINAL) {
