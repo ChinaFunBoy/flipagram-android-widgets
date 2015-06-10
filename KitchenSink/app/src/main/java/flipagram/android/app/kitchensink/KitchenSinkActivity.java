@@ -71,6 +71,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
         int textColor = getResources().getColor(android.R.color.white);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .force()
+                .withTextSize(16.0f)
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.percentLayoutButton))
                                 .pointing(Coachmark.Target.Direction.North)

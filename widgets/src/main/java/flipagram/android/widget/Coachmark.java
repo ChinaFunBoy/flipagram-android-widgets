@@ -30,6 +30,7 @@ public class Coachmark {
     private final List<Target> targets = new ArrayList<Target>();
     private final int backgroundColor;
     private final int textColor;
+    private float textSize = 0;
     private boolean showCoachmarks = true;
 
     public static class Target {
@@ -119,6 +120,11 @@ public class Coachmark {
         return this;
     }
 
+    public Coachmark withTextSize(float sp){
+        this.textSize = sp;
+        return this;
+    }
+
     /**
      * Show the coachmarks attached to a View
      * @return true if the coachmarks were shown. False otherwise.
@@ -164,6 +170,9 @@ public class Coachmark {
                 target.textView.setCoachRadius(dp(COACHMARK_CORNER_RADIUS));
                 target.textView.setCoachFillColor(backgroundColor);
                 target.textView.setTextColor(textColor);
+                if (textSize>0){
+                    target.textView.setTextSize(textSize);
+                }
                 coachmarks.addView(target.textView);
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
