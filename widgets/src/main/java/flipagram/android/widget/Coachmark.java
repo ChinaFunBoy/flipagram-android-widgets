@@ -25,7 +25,7 @@ import flipagram.android.widgets.R;
 public class Coachmark {
     public static final String PREFS_NAME = "Coachmark";
     private static final int TRIANGLE_BASE = 20; // dips
-    private static final int TRIANGLE_CENTROID = 10; // dips
+    private static final int TRIANGLE_CENTROID = 12; // dips
     private static final int MARGIN = 16; //dips
     private static final int COACHMARK_CORNER_RADIUS = 5;
 
@@ -208,7 +208,6 @@ public class Coachmark {
                         getTriangleVerticalSize(target)
                 ));
                 target.triangle.setTriangleFillColor(backgroundColor);
-                coachmarks.addView(target.triangle);
 
                 target.textView.setLayoutParams(new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -222,7 +221,6 @@ public class Coachmark {
                 if (textSize>0){
                     target.textView.setTextSize(textSize);
                 }
-                coachmarks.addView(target.textView);
                 if (target.circle!=null){
                     int circleSize = (int) (
                             Math.min((float)target.view.getWidth(),(float)target.view.getHeight())
@@ -230,8 +228,10 @@ public class Coachmark {
                     target.circle.setLayoutParams(new FrameLayout.LayoutParams(circleSize, circleSize));
                     target.circle.setBorderSize((int) dp(target.circleBorderWidthDp));
                     target.circle.setFillColor(backgroundColor);
-                    coachmarks.addView(target.circle,0);
+                    coachmarks.addView(target.circle);
                 }
+                coachmarks.addView(target.triangle); // Order of these...
+                coachmarks.addView(target.textView); // adds is important
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -269,6 +269,9 @@ public class Coachmark {
 
     private void positionTarget(final Target target){
 
+        /** textView overlaps triangle by this much to remove animation artifacts */
+        int dp2 = (int) dp(2);
+
         Point viewPoint = getAbsoluteXY(target.view);
 
         /** The point at the center of the side ajacent to the View */
@@ -292,7 +295,7 @@ public class Coachmark {
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
-                        textViewCenterOfAdjacentSide.y - target.textView.getHeight());
+                        textViewCenterOfAdjacentSide.y - target.textView.getHeight() + dp2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y);
@@ -306,7 +309,7 @@ public class Coachmark {
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
                         textViewCenterOfAdjacentSide.x - target.textView.getWidth() / 2,
-                        textViewCenterOfAdjacentSide.y);
+                        textViewCenterOfAdjacentSide.y - dp2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth() / 2,
                         textViewCenterOfAdjacentSide.y - target.triangle.getHeight());
@@ -319,7 +322,7 @@ public class Coachmark {
                         viewPoint.y + target.view.getHeight() / 2);
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
-                        textViewCenterOfAdjacentSide.x,
+                        textViewCenterOfAdjacentSide.x - dp2,
                         textViewCenterOfAdjacentSide.y - target.textView.getHeight() / 2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x - target.triangle.getWidth(),
@@ -334,7 +337,7 @@ public class Coachmark {
                         viewPoint.y + target.view.getHeight() / 2);
                 textViewCenterOfAdjacentSide.offset(skewTextDimensions.x,skewTextDimensions.y);
                 textViewPoint.set(
-                        textViewCenterOfAdjacentSide.x - target.textView.getWidth(),
+                        textViewCenterOfAdjacentSide.x - target.textView.getWidth() + dp2,
                         textViewCenterOfAdjacentSide.y - target.textView.getHeight() / 2);
                 trianglePoint.set(
                         textViewCenterOfAdjacentSide.x,
