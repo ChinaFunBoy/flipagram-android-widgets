@@ -215,7 +215,7 @@ public class Coachmark {
                     target.circle.setLayoutParams(new FrameLayout.LayoutParams(circleSize, circleSize));
                     target.circle.setBorderStrokeWidth((int) dp(target.circleBorderWidthDp));
                     target.circle.setFillColor(backgroundColor);
-                    coachmarks.addView(target.circle);
+                    coachmarks.addView(target.circle,0);
                 }
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
