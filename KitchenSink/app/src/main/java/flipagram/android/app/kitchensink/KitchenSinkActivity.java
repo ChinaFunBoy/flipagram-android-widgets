@@ -77,14 +77,9 @@ public class KitchenSinkActivity extends ActionBarActivity {
 
         int backgroundColor = getResources().getColor(android.R.color.holo_orange_dark);
         int textColor = getResources().getColor(android.R.color.white);
+        int bullseyeBorderColor = getResources().getColor(android.R.color.white);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .withTextSize(16.0f)
-                .withTarget(
-                        new Coachmark.Target(findViewById(R.id.percentLayoutButton))
-                                .pointing(Coachmark.Target.Direction.North)
-                                .skewTriangleToward(Coachmark.Target.Direction.West, 0.5f)
-                                .withText("Start a PercentLayout")
-                )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.nextButton))
                                 .pointing(Coachmark.Target.Direction.South)
@@ -98,28 +93,32 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                 .withText("This is the next button.\n" +
                                         "You can press it to go to\n" +
                                         "the next screen.")
+                                .withBullseye(bullseyeBorderColor, 4)
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.circleTextView))
                                 .pointing(Coachmark.Target.Direction.South)
-                                .withText("Points South")
-                )
-                .withTarget(
-                        new Coachmark.Target(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.Target.Direction.North)
-                                .withText("This is the southern most tip\n" +
+                                .withText("This is the northern most tip\n" +
                                         "of the cirlce. It's a nice circle.\n" +
                                         "It does nothing but be a circle.")
                 )
                 .withTarget(
-                        new Coachmark.Target(findViewById(R.id.circleTextView))
-                                .pointing(Coachmark.Target.Direction.West)
-                                .withText("Points West")
+                        new Coachmark.Target(findViewById(R.id.restoreCoachmarks))
+                                .pointing(Coachmark.Target.Direction.South)
+                                .withText("Restore these coachmarks!")
+                                .withBullseye(bullseyeBorderColor, 4)
                 )
                 .withTarget(
-                        new Coachmark.Target(findViewById(R.id.circleTextView))
+                        new Coachmark.Target(findViewById(R.id.leftButton))
+                                .pointing(Coachmark.Target.Direction.West)
+                                .withText("oompa")
+                                .withBullseye(bullseyeBorderColor,4)
+                )
+                .withTarget(
+                        new Coachmark.Target(findViewById(R.id.rightButton))
                                 .pointing(Coachmark.Target.Direction.East)
-                                .withText("Points East")
+                                .withText("loompa")
+                                .withBullseye(bullseyeBorderColor,4)
                 )
                 .showTargetViews();
     }

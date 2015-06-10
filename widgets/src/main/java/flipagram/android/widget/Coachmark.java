@@ -15,6 +15,7 @@ import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class Coachmark {
     public static class Target {
         static final int LATITUDINAL = 1;
         static final int LONGITUDINAL= 2;
+
         public enum Direction {
             North(LATITUDINAL,-1),
             South(LATITUDINAL,1),
@@ -63,6 +65,9 @@ public class Coachmark {
 
         private final TriangleView triangle;
         private final CoachTextView textView;
+
+        private CircleTextView circle;
+        private int circleBorderWidthDp;
 
         public View getView(){
             return this.view;
@@ -93,6 +98,14 @@ public class Coachmark {
         }
         public Target withText(int id){
             this.text = view.getContext().getString(id);
+            return this;
+        }
+        public Target withBullseye(int borderColor, int borderWidthDp) {
+            if (circle == null){
+                circle = new CircleTextView(view.getContext());
+                circle.setBorderColor(borderColor);
+                circleBorderWidthDp = borderWidthDp;
+            }
             return this;
         }
     }
@@ -197,6 +210,13 @@ public class Coachmark {
                     target.textView.setTextSize(textSize);
                 }
                 coachmarks.addView(target.textView);
+                if (target.circle!=null){
+                    int circleSize = Math.min(target.view.getWidth(),target.view.getHeight());
+                    target.circle.setLayoutParams(new FrameLayout.LayoutParams(circleSize, circleSize));
+                    target.circle.setBorderStrokeWidth((int) dp(target.circleBorderWidthDp));
+                    target.circle.setFillColor(backgroundColor);
+                    coachmarks.addView(target.circle);
+                }
             }
             activity.addContentView(coachmarks,new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -314,6 +334,44 @@ public class Coachmark {
         target.textView.setTranslationY(textViewPoint.y);
         target.triangle.setTranslationX(trianglePoint.x);
         target.triangle.setTranslationY(trianglePoint.y);
+
+        // Now draw the circle based on where the triangle is now pointing
+        if (target.circle!=null){
+            Point circlePoint = new Point(
+                    (int)target.triangle.getTranslationX(),
+                    (int)target.triangle.getTranslationY());
+            int tHigh = target.triangle.getHeight();
+            int tWide = target.triangle.getWidth();
+            int cSize = target.circle.getWidth();
+            switch (target.points){
+                case North:
+                    circlePoint.offset(
+                            tWide / 2 - cSize / 2,
+                            -cSize
+                    );
+                    break;
+                case South:
+                    circlePoint.offset(
+                            tWide / 2 - cSize / 2,
+                            tHigh
+                    );
+                    break;
+                case East:
+                    circlePoint.offset(
+                            tWide,
+                            tHigh / 2 - cSize / 2
+                    );
+                    break;
+                case West:
+                    circlePoint.offset(
+                            -cSize,
+                            tHigh / 2 - cSize / 2
+                    );
+                    break;
+            }
+            target.circle.setTranslationX(circlePoint.x);
+            target.circle.setTranslationY(circlePoint.y);
+        }
     }
 
     private Point getAbsoluteXY(View view){
