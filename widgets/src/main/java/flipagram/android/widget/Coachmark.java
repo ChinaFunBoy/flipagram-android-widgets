@@ -39,20 +39,20 @@ public class Coachmark {
     private boolean showCoachmarks = true;
 
     public static class Target {
-        static final int LATITUDINAL = 1;
-        static final int LONGITUDINAL= 2;
+        static final String YAXIS = "x";
+        static final String XAXIS = "y";
 
         public enum Direction {
-            North(LATITUDINAL,-1,R.anim.coachmark_north_bounce),
-            South(LATITUDINAL,1,R.anim.coachmark_south_bounce),
-            East(LONGITUDINAL,1,R.anim.coachmark_east_bounce),
-            West(LONGITUDINAL,-1,R.anim.coachmark_west_bounce),
+            North(YAXIS,-1,R.anim.coachmark_north_bounce),
+            South(YAXIS,1,R.anim.coachmark_south_bounce),
+            East(XAXIS,1,R.anim.coachmark_east_bounce),
+            West(XAXIS,-1,R.anim.coachmark_west_bounce),
             ;
-            int vector;
+            String axis;
             int grows;
             int animationId;
-            Direction(int vector, int grows, int animationId){
-                this.vector = vector;
+            Direction(String axis, int grows, int animationId){
+                this.axis = axis;
                 this.grows = grows;
                 this.animationId = animationId;
             }
@@ -439,10 +439,10 @@ public class Coachmark {
     private Point getSkewTextDimensions(Target target){
         Point dim = new Point();
         if (target.skewText!=null){
-            if (target.points.vector==target.skewText.vector){
+            if (target.points.axis==target.skewText.axis){
                 throw new IllegalArgumentException("Bad skew direction");
             }
-            if (target.skewText.vector==Target.LATITUDINAL) {
+            if (target.skewText.axis==Target.YAXIS) {
                 dim.set(0,target.skewText.grows * (int) ( ((float)target.view.getHeight()/2) * target.skewTextPercent));
             } else {
                 dim.set(target.skewText.grows * (int) ( ((float)target.view.getWidth()/2) * target.skewTextPercent),0);
@@ -455,10 +455,10 @@ public class Coachmark {
         Point dim = new Point();
         float twoRadians = dp(COACHMARK_CORNER_RADIUS * 2);
         if (target.skewTriangle!=null){
-            if (target.points.vector==target.skewTriangle.vector){
+            if (target.points.axis==target.skewTriangle.axis){
                 throw new IllegalArgumentException("Bad skew direction");
             }
-            if (target.skewTriangle.vector==Target.LATITUDINAL) {
+            if (target.skewTriangle.axis==Target.YAXIS) {
                 float maxHigh = target.textView.getHeight() / 2 - twoRadians;
                 dim.set(0,target.skewTriangle.grows * (int) ( maxHigh * target.skewTrianglePercent));
             } else {
