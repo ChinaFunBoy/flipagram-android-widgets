@@ -76,6 +76,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
         int backgroundColor = getResources().getColor(android.R.color.holo_orange_dark);
         int textColor = getResources().getColor(android.R.color.white);
         int bullseyeBorderColor = getResources().getColor(android.R.color.white);
+//        Coachmark.reset(this);
         new Coachmark(this,COACH_KEY, backgroundColor, textColor)
                 .withTextSize(16.0f)
                 .withTarget(
@@ -83,6 +84,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                 .pointing(Coachmark.Target.Direction.South)
                                 .withBounce()
                                 .withText(R.string.go_to_the_next_one)
+                                .withClickthrough(true)
                 )
                 .withTarget(
                         new Coachmark.Target(toolbar)

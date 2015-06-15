@@ -69,6 +69,7 @@ public class Coachmark {
         private final CoachTextView textView;
 
         private boolean bounce = false;
+        private boolean clickThrough = false;
 
         private CircleTextView circle;
         private int circleBorderWidthDp;
@@ -116,6 +117,16 @@ public class Coachmark {
                 circlePercent = percent;
                 circleBorderWidthDp = borderWidthDp;
             }
+            return this;
+        }
+
+        /**
+         * When the user touches the coachmark, the target View is clicked.
+         * @param clickThrough
+         * @return
+         */
+        public Target withClickthrough(boolean clickThrough) {
+            this.clickThrough = clickThrough;
             return this;
         }
     }
@@ -199,7 +210,7 @@ public class Coachmark {
                     return false;
                 }
             });
-            for(Target target : targets){
+            for(final Target target : targets){
                 target.triangle.setLayoutParams(new FrameLayout.LayoutParams(
                         getTriangleHorizontalSize(target),
                         getTriangleVerticalSize(target)
@@ -215,6 +226,15 @@ public class Coachmark {
                 target.textView.setCoachRadius(dp(COACHMARK_CORNER_RADIUS));
                 target.textView.setCoachFillColor(backgroundColor);
                 target.textView.setTextColor(textColor);
+                if (target.clickThrough){
+                    target.textView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            target.view.performClick();
+                            return false;
+                        }
+                    });
+                }
                 if (textSize>0){
                     target.textView.setTextSize(textSize);
                 }
