@@ -20,8 +20,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import flipagram.android.widget.Coachmark;
 import flipagram.android.widget.PrevNextView;
@@ -35,7 +37,7 @@ public class KitchenSinkActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         final PrevNextView pn = PrevNextView.class.cast(findViewById(R.id.prevnext));
@@ -96,6 +98,13 @@ public class KitchenSinkActivity extends ActionBarActivity {
                                         "You can press it to go to\n" +
                                         "the next screen.")
                                 .withBullseye(0.5f,bullseyeBorderColor, 4)
+                                .withClickListener(new View.OnClickListener(){
+                                    @Override
+                                    public void onClick(View v) {
+                                        toolbar.getMenu()
+                                               .performIdentifierAction(R.id.menu_item_next,0);
+                                    }
+                                })
                 )
                 .withTarget(
                         new Coachmark.Target(findViewById(R.id.circleTextView))
@@ -133,5 +142,15 @@ public class KitchenSinkActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.kitchen_sink, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_item_next:
+                Toast.makeText(this,"Next button clicked",Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
