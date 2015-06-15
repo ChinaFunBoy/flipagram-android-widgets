@@ -1,5 +1,7 @@
 package flipagram.android.widget;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -13,21 +15,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import flipagram.android.widgets.R;
 
 public class Coachmark {
     public static final String PREFS_NAME = "Coachmark";
     private static final int TRIANGLE_BASE = 20; // dips
     private static final int TRIANGLE_CENTROID = 12; // dips
     private static final int MARGIN = 16; //dips
-    private static final int COACHMARK_CORNER_RADIUS = 5;
+    private static final int COACHMARK_CORNER_RADIUS = 5; // dips
+    private static final int BOUNCE = 10; // dips
 
     private final DisplayMetrics displayMetrics;
     private final Activity activity;
@@ -39,22 +38,20 @@ public class Coachmark {
     private boolean showCoachmarks = true;
 
     public static class Target {
-        static final String YAXIS = "x";
-        static final String XAXIS = "y";
+        static final String YAXIS = "TranslationY";
+        static final String XAXIS = "TranslationX";
 
         public enum Direction {
-            North(YAXIS,-1,R.anim.coachmark_north_bounce),
-            South(YAXIS,1,R.anim.coachmark_south_bounce),
-            East(XAXIS,1,R.anim.coachmark_east_bounce),
-            West(XAXIS,-1,R.anim.coachmark_west_bounce),
+            North(YAXIS,-1),
+            South(YAXIS,1),
+            East(XAXIS,1),
+            West(XAXIS,-1),
             ;
             String axis;
             int grows;
-            int animationId;
-            Direction(String axis, int grows, int animationId){
+            Direction(String axis, int grows){
                 this.axis = axis;
                 this.grows = grows;
-                this.animationId = animationId;
             }
         }
 
@@ -400,9 +397,33 @@ public class Coachmark {
         target.triangle.setTranslationY(trianglePoint.y);
 
         if (target.bounce) {
-            Animation anim = AnimationUtils.loadAnimation(activity, target.points.animationId);
-            target.triangle.startAnimation(anim);
-            target.textView.startAnimation(anim);
+            for(View view : new View[]{target.triangle,target.textView}) {
+                AnimatorSet set = new AnimatorSet();
+                float initial = getInitialValue(view, target.points.axis);
+                ObjectAnimator[] animators = new ObjectAnimator[]{
+                        ObjectAnimator.ofFloat(
+                                view,
+                                target.points.axis,
+                                initial,
+                                initial - dp(BOUNCE) * target.points.grows
+                        )
+                };
+                for( ObjectAnimator animator : animators){
+                    animator.setDuration(500);
+                    animator.setRepeatMode(ObjectAnimator.REVERSE);
+                    animator.setRepeatCount(ObjectAnimator.INFINITE);
+                }
+                set.playSequentially(animators);
+                set.start();
+            }
+        }
+    }
+
+    private float getInitialValue(View view, String name){
+        try {
+            return (Float)view.getClass().getMethod("get"+name).invoke(view);
+        } catch (Exception e) {
+            throw new Error(e); // This should only break during development
         }
     }
 
