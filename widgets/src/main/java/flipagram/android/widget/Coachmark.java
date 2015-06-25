@@ -28,6 +28,8 @@ public class Coachmark {
     private static final int COACHMARK_CORNER_RADIUS = 5; // dips
     private static final int BOUNCE = 10; // dips
 
+    public enum ShowPolicy { Once, EachTime, KeepOnScreen }
+
     private final DisplayMetrics displayMetrics;
     private final Activity activity;
     private final View activityContent;
@@ -35,7 +37,8 @@ public class Coachmark {
     private final int backgroundColor;
     private final int textColor;
     private float textSize = 0;
-    private boolean showCoachmarks = true;
+    private ShowPolicy showPolicy = ShowPolicy.Once;
+    private final String key;
 
     public static class Target {
         static final String YAXIS = "TranslationY";
@@ -61,12 +64,16 @@ public class Coachmark {
 
         private Direction skewText = null;
         private float skewTextPercent;
+        private int skewTextDips = 0;
 
         private Direction skewTriangle = null;
         private float skewTrianglePercent;
+        private boolean showTriangle = true;
 
         private final TriangleView triangle;
         private final CoachTextView textView;
+
+        private int textCornerRadius = COACHMARK_CORNER_RADIUS;
 
         private boolean bounce = false;
 
@@ -95,9 +102,18 @@ public class Coachmark {
             this.skewTextPercent = percent;
             return this;
         }
+        public Target skewTextToward(Direction direction, int dips){
+            this.skewText = direction;
+            this.skewTextDips = dips;
+            return this;
+        }
         public Target skewTriangleToward(Direction direction, float percent){
             this.skewTriangle = direction;
             this.skewTrianglePercent = percent;
+            return this;
+        }
+        public Target withTriangle(boolean showTriangle) {
+            this.showTriangle = showTriangle;
             return this;
         }
         public Target withText(String text){
@@ -106,6 +122,11 @@ public class Coachmark {
         }
         public Target withText(int id){
             this.text = view.getContext().getString(id);
+            return this;
+        }
+
+        public Target withTextCornerRadius(int radius) {
+            this.textCornerRadius = radius;
             return this;
         }
         public Target withBounce(){
@@ -140,19 +161,12 @@ public class Coachmark {
 
 
     public Coachmark(Activity activity, String key, int backgroundColor, int textColor){
-        SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
         this.activity = activity;
+        this.key = key;
         this.backgroundColor = backgroundColor;
         this.textColor = textColor;
         this.activityContent = activity.findViewById(android.R.id.content);
         this.displayMetrics = activity.getResources().getDisplayMetrics();
-
-        showCoachmarks = !settings.getBoolean(key,false); // Show them if we have not
-        if (showCoachmarks){
-            // Don't show them again
-            settings.edit().putBoolean(key,true).apply();
-        }
     }
 
     /**
@@ -179,8 +193,13 @@ public class Coachmark {
         return this;
     }
 
+    public Coachmark withShowPolicy(ShowPolicy showPolicy){
+        this.showPolicy = showPolicy;
+        return this;
+    }
+
     public Coachmark force(){
-        showCoachmarks = true;
+        this.showPolicy = ShowPolicy.EachTime;
         return this;
     }
 
@@ -190,10 +209,27 @@ public class Coachmark {
     }
 
     /**
-     * Show the coachmarks attached to a View
-     * @return true if the coachmarks were shown. False otherwise.
+     * Show coachmarks
+     * @return this
      */
     public Coachmark show(){
+        boolean showCoachmarks;
+        switch (showPolicy){
+            case Once:
+                SharedPreferences settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                showCoachmarks = !settings.getBoolean(key,false); // Show them if we have not
+                if (showCoachmarks){
+                    // Don't show them again
+                    settings.edit().putBoolean(key,true).apply();
+                }
+                break;
+            default:
+            case EachTime:
+            case KeepOnScreen:
+                showCoachmarks = true;
+                break;
+        }
+
         if (showCoachmarks) {
             addGlobalLayoutListener(activityContent, createCoachmarks);
         }
@@ -210,13 +246,15 @@ public class Coachmark {
             addGlobalLayoutListener(activityContent, positionViews);
 
             final FrameLayout coachmarks = new FrameLayout(activity);
-            coachmarks.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    coachmarks.setVisibility(View.GONE);
-                    return false;
-                }
-            });
+            if (showPolicy!=ShowPolicy.KeepOnScreen) {
+                coachmarks.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        coachmarks.setVisibility(View.GONE);
+                        return false;
+                    }
+                });
+            }
             for(final Target target : targets){
                 target.triangle.setLayoutParams(new FrameLayout.LayoutParams(
                         getTriangleHorizontalSize(target),
@@ -230,7 +268,7 @@ public class Coachmark {
                 ));
                 target.textView.setPadding((int)dp(10),(int)dp(10),(int)dp(10),(int)dp(10));
                 target.textView.setText(target.text);
-                target.textView.setCoachRadius(dp(COACHMARK_CORNER_RADIUS));
+                target.textView.setCoachRadius(dp(target.textCornerRadius));
                 target.textView.setCoachFillColor(backgroundColor);
                 target.textView.setTextColor(textColor);
                 if (target.clickThrough || target.clickListener!=null) {
@@ -427,6 +465,8 @@ public class Coachmark {
         target.textView.setTranslationY(textViewPoint.y);
         target.triangle.setTranslationX(trianglePoint.x);
         target.triangle.setTranslationY(trianglePoint.y);
+        if (target.showTriangle==false)
+            target.triangle.setVisibility(View.INVISIBLE);
 
         if (target.bounce) {
             for(View view : new View[]{target.triangle,target.textView}) {
@@ -492,13 +532,20 @@ public class Coachmark {
     private Point getSkewTextDimensions(Target target){
         Point dim = new Point();
         if (target.skewText!=null){
-            if (target.points.axis==target.skewText.axis){
-                throw new IllegalArgumentException("Bad skew direction");
+            if (target.skewTextPercent!=0) {
+                if (target.skewText.axis == Target.YAXIS) {
+                    dim.set(0, target.skewText.grows * (int) (((float) target.view.getHeight() / 2) * target.skewTextPercent));
+                } else {
+                    dim.set(target.skewText.grows * (int) (((float) target.view.getWidth() / 2) * target.skewTextPercent), 0);
+                }
             }
-            if (target.skewText.axis==Target.YAXIS) {
-                dim.set(0,target.skewText.grows * (int) ( ((float)target.view.getHeight()/2) * target.skewTextPercent));
-            } else {
-                dim.set(target.skewText.grows * (int) ( ((float)target.view.getWidth()/2) * target.skewTextPercent),0);
+            if (target.skewTextDips!=0) {
+                int pixels = (int) dp(target.skewTextDips);
+                if (target.skewText.axis == Target.YAXIS) {
+                    dim.set(0, target.skewText.grows * pixels);
+                } else {
+                    dim.set(target.skewText.grows * pixels, 0);
+                }
             }
         }
         return dim;
