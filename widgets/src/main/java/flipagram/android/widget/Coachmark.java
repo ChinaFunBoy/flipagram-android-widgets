@@ -270,6 +270,9 @@ public class Coachmark {
 
         if (showCoachmarks) {
             addGlobalLayoutListener(activityContent, createCoachmarks);
+            for(Target target : targets){
+                target.view.requestLayout();
+            }
         }
         return this;
     }
