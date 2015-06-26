@@ -316,13 +316,15 @@ public class Coachmark {
                     target.textView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
-                            if (target.clickListener != null) {
-                                target.clickListener.onClick(target.view);
+                            if (event.getAction()==MotionEvent.ACTION_DOWN) {
+                                if (target.clickListener != null) {
+                                    target.clickListener.onClick(target.view);
+                                }
+                                if (target.clickThrough) {
+                                    target.view.performClick();
+                                }
                             }
-                            if (target.clickThrough) {
-                                target.view.performClick();
-                            }
-                            return false;
+                            return true;
                         }
                     });
                 }
