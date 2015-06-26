@@ -43,7 +43,16 @@ public class Coachmark {
     /**
      * When should the Coachmark show
      */
-    public enum ShowPolicy { Once, EachTime, KeepOnScreen }
+    public enum ShowPolicy {
+        /** One time ever. Once it's gone, it's gone. The default. */
+        Once,
+        /** Every time it's elegable to be seen. Use this when you want to control when the
+         * coachmark appears, but still want it to disappear when the user does something */
+        EachTime,
+        /** Don't ever stop showing the coachmark. It's on the screen even as the user is
+         * interacting with it. */
+        KeepOnScreen
+    }
 
     private final DisplayMetrics displayMetrics;
     private final Activity activity;
@@ -55,6 +64,10 @@ public class Coachmark {
     private ShowPolicy showPolicy = ShowPolicy.Once;
     private final String key;
 
+    /**
+     * Describes the Target of a particular coachmark. Builder functions describe excactly how the
+     * Coachmark behaves.
+     */
     public static class Target {
         static final String YAXIS = "TranslationY";
         static final String XAXIS = "TranslationX";
@@ -103,11 +116,21 @@ public class Coachmark {
             return this.view;
         }
 
+        /** Creates a Target and points it a particular View */
         public Target(View view){
             this.view = view;
             this.triangle = new TriangleView(view.getContext());
             this.textView = new CoachTextView(view.getContext());
         }
+
+        /**
+         * Describes which way the triangle is pointing. Since the triangle always points toward the
+         * target (even if the triangle is hidden), the Text will always be in the opposite direction
+         * of the direction. So if the direction is South, then the Text will be to the North of the
+         * target.
+         * @param direction the direction that the triangle points
+         * @return
+         */
         public Target pointing(Direction direction){
             this.points = direction;
             return this;
