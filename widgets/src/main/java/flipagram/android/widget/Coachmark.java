@@ -20,7 +20,19 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Display one or more Coachmarks on the screen. Coachmarks reference target Views and
+ * arrange themselves relative to their target view and point to that view from their given
+ * direction. Coachmarks can optionally point to their view with a small triangular pointer. They
+ * can also optionally bounce to gather the user's attention. Coachmarks are drawn on a separate
+ * clear surface above the Activity using Activity.addContentView, so they can point to anything
+ * including the ActionBar.
+ */
 public class Coachmark {
+    /**
+     * Coachmarks keep track of whether they've been seen before and can optionally show up only
+     * once. We use the "Coachmark" SharedPreference to keep track of this.
+     */
     public static final String PREFS_NAME = "Coachmark";
     private static final int TRIANGLE_BASE = 20; // dips
     private static final int TRIANGLE_CENTROID = 12; // dips
@@ -28,6 +40,9 @@ public class Coachmark {
     private static final int COACHMARK_CORNER_RADIUS = 5; // dips
     private static final int BOUNCE = 10; // dips
 
+    /**
+     * When should the Coachmark show
+     */
     public enum ShowPolicy { Once, EachTime, KeepOnScreen }
 
     private final DisplayMetrics displayMetrics;
@@ -339,7 +354,9 @@ public class Coachmark {
         /** textView overlaps triangle by this much to remove animation artifacts */
         int dp2 = (int) dp(2);
 
-        Point viewPoint = getAbsoluteXY(target.view);
+        int[] pos = new int[2];
+        target.view.getLocationInWindow(pos);
+        Point viewPoint = new Point(pos[0],pos[1]-getNotificationBarHeight());
 
         /** The point at the center of the side ajacent to the View */
         Point textViewCenterOfAdjacentSide = new Point();
@@ -499,20 +516,6 @@ public class Coachmark {
         }
     }
 
-    private Point getAbsoluteXY(View view){
-        Point point = new Point();
-        point.offset(view.getLeft(),view.getTop());
-        ViewParent parent = view.getParent();
-        while(parent!=null && parent!=activityContent){
-            if (parent instanceof View) {
-                view = (View) parent;
-                point.offset(view.getLeft(), view.getTop());
-            }
-            parent = parent.getParent();
-        }
-        return point;
-    }
-
     private Point getFixDimensions(Target target, Point textViewPoint){
         Point fix = new Point();
         int margin = (int)dp(MARGIN);
@@ -584,6 +587,10 @@ public class Coachmark {
 
     private float dp(int fromDp){
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, fromDp, displayMetrics);
+    }
+
+    private int getNotificationBarHeight(){
+        return displayMetrics.heightPixels - activityContent.getMeasuredHeight();
     }
 
 }
