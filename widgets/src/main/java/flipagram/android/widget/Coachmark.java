@@ -316,6 +316,9 @@ public class Coachmark {
                     target.textView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
+                            if (showPolicy!=ShowPolicy.KeepOnScreen) {
+                                coachmarks.setVisibility(View.GONE);
+                            }
                             if (event.getAction()==MotionEvent.ACTION_DOWN) {
                                 if (target.clickListener != null) {
                                     target.clickListener.onClick(target.view);
