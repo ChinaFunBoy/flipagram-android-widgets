@@ -109,20 +109,16 @@ public class RatioDynamicLayout extends ViewGroup {
                 childPixels.y = child.getMeasuredHeight();
                 childPixels.x = child.getMeasuredWidth();
 
-                if (lp.centerPoint!=null){
+                if (lp.centerInViewOnNextLayout) {
+                    childTop = containerVerticalPixels/2 - childPixels.y/2;
+                    childBottom = childTop + childPixels.y;
+                    lp.y = calculateY(Gravity.TOP, // This centers multi-line text vertically
+                            childTop, childBottom, paddingTop, containerVerticalPixels);
+                } else if (lp.centerPoint!=null){
                     childTop = lp.centerPoint.y - childPixels.y/2;
                     childBottom = childTop + childPixels.y;
-                    switch (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) {
-                        case Gravity.BOTTOM:
-                            lp.y = (childBottom-paddingTop) / containerVerticalPixels;
-                            break;
-                        case Gravity.CENTER_VERTICAL:
-                            lp.y = (childTop+(childBottom-childTop)/2-paddingTop) / containerVerticalPixels;
-                            break;
-                        case Gravity.TOP:
-                        default:
-                            lp.y = (childTop-paddingTop) / containerVerticalPixels;
-                    }
+                    lp.y = calculateY(lp.gravity & Gravity.VERTICAL_GRAVITY_MASK,
+                            childTop, childBottom, paddingTop, containerVerticalPixels);
                 } else {
                     final int y = (int) (lp.y * containerVerticalPixels);
                     switch (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) {
@@ -139,20 +135,16 @@ public class RatioDynamicLayout extends ViewGroup {
                     childBottom = childTop + childPixels.y;
                 }
 
-                if (lp.centerPoint!=null) {
+                if (lp.centerInViewOnNextLayout) {
+                    childLeft = containerHorizontalPixels/2 - childPixels.x/2;
+                    childRight = childLeft + childPixels.x;
+                    lp.x = calculateX(lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK,
+                            childLeft, childRight, paddingLeft, containerHorizontalPixels);
+                } else if (lp.centerPoint!=null) {
                     childLeft = lp.centerPoint.x - childPixels.x/2;
                     childRight = childLeft + childPixels.x;
-                    switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                        case Gravity.RIGHT:
-                            lp.x = (childRight-paddingLeft) / containerHorizontalPixels;
-                            break;
-                        case Gravity.CENTER_HORIZONTAL:
-                            lp.x = (childLeft+(childRight-childLeft)/2-paddingLeft) / containerHorizontalPixels;
-                            break;
-                        case Gravity.LEFT:
-                        default:
-                            lp.x = (childLeft-paddingLeft) / containerHorizontalPixels;
-                    }
+                    lp.x = calculateX(lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK,
+                            childLeft, childRight, paddingLeft, containerHorizontalPixels);
                 } else {
                     final int x = (int) (lp.x * containerHorizontalPixels);
                     switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
@@ -169,9 +161,52 @@ public class RatioDynamicLayout extends ViewGroup {
                     childRight = childLeft + childPixels.x;
                 }
                 lp.centerPoint = null;
+                lp.centerInViewOnNextLayout = false;
 
                 child.layout((int)childLeft, (int)childTop, (int)childRight, (int)childBottom);
             }
+        }
+    }
+
+    /**
+     * Calculate lp.x based on the child's position and gravity
+     */
+    private float calculateX(
+            int gravity,
+            float childLeft,
+            float childRight,
+            float paddingLeft,
+            float containerHorizontalPixels
+    ){
+        switch(gravity){
+            case Gravity.RIGHT:
+                return (childRight-paddingLeft) / containerHorizontalPixels;
+            case Gravity.CENTER_HORIZONTAL:
+                return (childLeft+(childRight-childLeft)/2-paddingLeft) / containerHorizontalPixels;
+            case Gravity.LEFT:
+            default:
+                return (childLeft-paddingLeft) / containerHorizontalPixels;
+        }
+    }
+
+    /**
+     * Calculate lp.y based on the child's position and gravity
+     */
+    private float calculateY(
+            int gravity,
+            float childTop,
+            float childBottom,
+            float paddingTop,
+            float containerVerticalPixels
+    ){
+        switch (gravity) {
+            case Gravity.BOTTOM:
+                return (childBottom-paddingTop) / containerVerticalPixels;
+            case Gravity.CENTER_VERTICAL:
+                return (childTop+(childBottom-childTop)/2-paddingTop) / containerVerticalPixels;
+            case Gravity.TOP:
+            default:
+                return (childTop-paddingTop) / containerVerticalPixels;
         }
     }
 
@@ -222,6 +257,12 @@ public class RatioDynamicLayout extends ViewGroup {
          * However, x,y are recalculated based on the centerPoint.
          */
         public Point centerPoint = null;
+        /**
+         * When the centerInViewOnNextLayout is true, the view is laid out around the exact center
+         * of the container
+         * x,y are recalculated based on the calculated center.
+         */
+        public boolean centerInViewOnNextLayout = false;
 
         public LayoutParams(int width, int height) {
             super(width, height);
