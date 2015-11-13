@@ -63,6 +63,7 @@ public class Coachmark {
     private float textSize = 0;
     private ShowPolicy showPolicy = ShowPolicy.Once;
     private final String key;
+    private boolean isFullScreen = false;
 
     /**
      * Describes the Target of a particular coachmark. Builder functions describe excactly how the
@@ -243,6 +244,11 @@ public class Coachmark {
 
     public Coachmark withTextSize(float sp){
         this.textSize = sp;
+        return this;
+    }
+
+    public Coachmark isFullScreen(boolean isFullScreen) {
+        this.isFullScreen = isFullScreen;
         return this;
     }
 
@@ -621,7 +627,10 @@ public class Coachmark {
     }
 
     private int getNotificationBarHeight(){
-        return displayMetrics.heightPixels - activityContent.getMeasuredHeight();
+        if (!isFullScreen) {
+            return displayMetrics.heightPixels - activityContent.getMeasuredHeight();
+        }
+        return 0;
     }
 
 }
